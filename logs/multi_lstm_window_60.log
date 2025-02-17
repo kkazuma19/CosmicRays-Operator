@@ -1,0 +1,66 @@
+Using device: cuda
+Train input shape: (4017, 12)
+Validation input shape: (4018, 12)
+Test input shape: (365, 12)
+Training with window_size=60
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([3958, 60, 12])
+Train target shape: torch.Size([3958, 65341, 1])
+Validation input shape: torch.Size([3959, 60, 12])
+Validation target shape: torch.Size([3959, 65341, 1])
+Test input shape: torch.Size([306, 60, 12])
+Test target shape: torch.Size([306, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 16
+Set the hyperparameters
+-----------------------------------------
+multi_branch/lstm_window_60.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 10
+Loss function: MSELoss()
+-----------------------------------------
+Epoch 1/1000, Train Loss: 3.526586, Val Loss: 0.005804
+Epoch 2/1000, Train Loss: 0.011102, Val Loss: 0.004194
+Epoch 3/1000, Train Loss: 0.001982, Val Loss: 0.000717
+Epoch 4/1000, Train Loss: 0.001809, Val Loss: 0.001997
+Epoch 5/1000, Train Loss: 0.001874, Val Loss: 0.000689
+Epoch 6/1000, Train Loss: 0.001649, Val Loss: 0.000571
+Epoch 7/1000, Train Loss: 0.001657, Val Loss: 0.000620
+Epoch 8/1000, Train Loss: 0.001650, Val Loss: 0.001041
+Epoch 9/1000, Train Loss: 0.001629, Val Loss: 0.000483
+Epoch 10/1000, Train Loss: 0.001598, Val Loss: 0.000861
+Epoch 11/1000, Train Loss: 0.001671, Val Loss: 0.000384
+Epoch 12/1000, Train Loss: 0.001565, Val Loss: 0.000394
+Epoch 13/1000, Train Loss: 0.001439, Val Loss: 0.001726
+Epoch 14/1000, Train Loss: 0.001536, Val Loss: 0.000403
+Epoch 15/1000, Train Loss: 0.001418, Val Loss: 0.000413
+Epoch 16/1000, Train Loss: 0.001480, Val Loss: 0.000789
+Epoch 17/1000, Train Loss: 0.001581, Val Loss: 0.000791
+Epoch 18/1000, Train Loss: 0.001431, Val Loss: 0.000802
+Epoch 19/1000, Train Loss: 0.001479, Val Loss: 0.000302
+Epoch 20/1000, Train Loss: 0.001581, Val Loss: 0.000712
+Epoch 21/1000, Train Loss: 0.001487, Val Loss: 0.000275
+Epoch 22/1000, Train Loss: 0.001536, Val Loss: 0.002259
+Epoch 23/1000, Train Loss: 0.001323, Val Loss: 0.003327
+Epoch 24/1000, Train Loss: 0.001401, Val Loss: 0.000313
+Epoch 25/1000, Train Loss: 0.001335, Val Loss: 0.000279
+Epoch 26/1000, Train Loss: 0.001229, Val Loss: 0.000539
+Epoch 27/1000, Train Loss: 0.002016, Val Loss: 0.000917
+Epoch 28/1000, Train Loss: 0.001134, Val Loss: 0.001593
+Epoch 29/1000, Train Loss: 0.001402, Val Loss: 0.000912
+Epoch 30/1000, Train Loss: 0.001424, Val Loss: 0.004212
+Epoch 31/1000, Train Loss: 0.001669, Val Loss: 0.000663
+Early stopping
+Training completed
+All predictions shape before reshape: (306, 65341, 1)
+All targets shape before reshape: (306, 65341, 1)
+All predictions shape after reshape: (306, 65341)
+All targets shape after reshape: (306, 65341)
+Results saved to multi_branch/array/lstm_window_60_results.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0005, MAE: 0.0005, R²: 0.9686, L2 Error: 0.1208
+(0.0004724984, 0.00046449763, 0.9686103541144547, 0.1207795)
