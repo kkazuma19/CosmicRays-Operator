@@ -254,6 +254,9 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     print("Training completed")
     return model
 
+
+# run
+train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
 # %%
 # %% load the model from the saved path
 model = init_model().to(device)
@@ -330,6 +333,6 @@ def evaluate_model(model, test_loader, scaler, save_dir, window_size, device='cu
     return rmse, mae, r2, l2_error
 
 # %%
-print(evaluate_model(trained_model, test_loader, scaler_target, save_dir, window_size, device=device))
+print(evaluate_model(model, test_loader, scaler_target, save_dir, window_size, device=device))
 
 

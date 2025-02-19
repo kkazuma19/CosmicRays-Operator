@@ -221,6 +221,8 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
     print("Training completed!")
 
+# train
+train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
 # %% load the model from the saved path
 model = init_model().to(device)
 model.load_state_dict(torch.load(save_path))

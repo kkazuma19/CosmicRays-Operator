@@ -1,5 +1,5 @@
 #!/bin/bash
-#SBATCH --job-name=single-rnn/lstm
+#SBATCH --job-name=multi_lstm_gru
 #SBATCH --partition=gpuA100x4,gpuA40x4
 #SBATCH --mem=128G
 #SBATCH --nodes=1
