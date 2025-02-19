@@ -1,4 +1,4 @@
-# %%
+# single branch GRU training script
 import numpy as np
 import torch
 import torch.nn as nn
@@ -18,6 +18,15 @@ from s_deeponet import SequentialDeepONet
 # %%
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print('Using device:', device)
+
+
+import random
+
+seed = 42
+random.seed(seed)
+np.random.seed(seed)
+torch.manual_seed(seed)
+torch.cuda.manual_seed_all(seed)
 
 # %%
 # Load neutron monitoring data
@@ -211,10 +220,11 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
                 break
 
     print("Training completed!")
-    return model
 
-# %%
-trained_model = train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
+# %% load the model from the saved path
+model = init_model().to(device)
+model.load_state_dict(torch.load(save_path))
+model.eval()
 
 # %%
 def evaluate_model(model, test_loader, scaler, device='cuda'):
@@ -236,7 +246,6 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
     all_preds = np.concatenate(all_preds, axis=0)
     all_targets = np.concatenate(all_targets, axis=0)
     
-    
     print("All predictions shape before reshape:", all_preds.shape)
     print("All targets shape before reshape:", all_targets.shape)
 
@@ -246,10 +255,15 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
 
     print("All predictions shape after reshape:", all_preds.shape)
     print("All targets shape after reshape:", all_targets.shape)
-
+    
     # Inverse scaling
     all_preds = scaler.inverse_transform(all_preds)
     all_targets = scaler.inverse_transform(all_targets)
+    
+    # save the predictions and targets to a file together
+    save_path = os.path.join(save_dir, f'array/lstm_window_{window_size}_preds_targets.npy')
+    np.save(save_path, np.stack((all_preds, all_targets), axis=1))
+    print(f"Predictions and targets saved to {save_path}")
     
     # Compute metrics for each sample
     rmse, mae, r2, l2_error = [], [], [], []
@@ -283,6 +297,6 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
     return rmse, mae, r2, l2_error
 
 # %%
-print(evaluate_model(trained_model, test_loader, scaler_target, device=device))
+print(evaluate_model(model, test_loader, scaler_target, device=device))
 
 
