@@ -1,0 +1,91 @@
+Using device: cuda
+Train input shape: (4017, 12)
+Validation input shape: (4018, 12)
+Test input shape: (365, 12)
+Training with window_size=30
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([3988, 30, 12])
+Train target shape: torch.Size([3988, 65341, 1])
+Validation input shape: torch.Size([3989, 30, 12])
+Validation target shape: torch.Size([3989, 65341, 1])
+Test input shape: torch.Size([336, 30, 12])
+Test target shape: torch.Size([336, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 16
+SequentialDeepONet(
+  (branch_net): GRU(
+    (gru): GRU(12, 128, num_layers=4, batch_first=True)
+    (layer_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+    (fc): Linear(in_features=128, out_features=128, bias=True)
+  )
+  (trunk_net): FCN(
+    (network): Sequential(
+      (0): Linear(in_features=2, out_features=128, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=128, out_features=128, bias=True)
+      (3): ReLU()
+      (4): Linear(in_features=128, out_features=128, bias=True)
+    )
+  )
+  (final_layer): Linear(in_features=128, out_features=1, bias=True)
+)
+Set the hyperparameters
+-----------------------------------------
+single_branch/gru_window_30.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 10
+Loss function: MSELoss()
+-----------------------------------------
+Epoch 1/1000, Train Loss: 0.012061, Validation Loss: 0.000118
+Epoch 2/1000, Train Loss: 0.000303, Validation Loss: 0.000103
+Epoch 3/1000, Train Loss: 0.000157, Validation Loss: 0.000165
+Epoch 4/1000, Train Loss: 0.000113, Validation Loss: 0.000050
+Epoch 5/1000, Train Loss: 0.000135, Validation Loss: 0.000017
+Epoch 6/1000, Train Loss: 0.000190, Validation Loss: 0.000027
+Epoch 7/1000, Train Loss: 0.000066, Validation Loss: 0.000028
+Epoch 8/1000, Train Loss: 0.000077, Validation Loss: 0.000124
+Epoch 9/1000, Train Loss: 0.000108, Validation Loss: 0.000022
+Epoch 10/1000, Train Loss: 0.000095, Validation Loss: 0.000074
+Epoch 11/1000, Train Loss: 0.000090, Validation Loss: 0.000017
+Epoch 12/1000, Train Loss: 0.000106, Validation Loss: 0.000012
+Epoch 13/1000, Train Loss: 0.000071, Validation Loss: 0.000038
+Epoch 14/1000, Train Loss: 0.000433, Validation Loss: 0.000164
+Epoch 15/1000, Train Loss: 0.000239, Validation Loss: 0.000119
+Epoch 16/1000, Train Loss: 0.000144, Validation Loss: 0.000160
+Epoch 17/1000, Train Loss: 0.000068, Validation Loss: 0.000322
+Epoch 18/1000, Train Loss: 0.000058, Validation Loss: 0.000011
+Epoch 19/1000, Train Loss: 0.000073, Validation Loss: 0.000124
+Epoch 20/1000, Train Loss: 0.000054, Validation Loss: 0.000025
+Epoch 21/1000, Train Loss: 0.000074, Validation Loss: 0.000007
+Epoch 22/1000, Train Loss: 0.000075, Validation Loss: 0.000103
+Epoch 23/1000, Train Loss: 0.000060, Validation Loss: 0.000009
+Epoch 24/1000, Train Loss: 0.000075, Validation Loss: 0.000011
+Epoch 25/1000, Train Loss: 0.000071, Validation Loss: 0.000013
+Epoch 26/1000, Train Loss: 0.000059, Validation Loss: 0.000010
+Epoch 27/1000, Train Loss: 0.000064, Validation Loss: 0.000007
+Epoch 28/1000, Train Loss: 0.000081, Validation Loss: 0.000006
+Epoch 29/1000, Train Loss: 0.000058, Validation Loss: 0.000018
+Epoch 30/1000, Train Loss: 0.000110, Validation Loss: 0.000008
+Epoch 31/1000, Train Loss: 0.000069, Validation Loss: 0.000288
+Epoch 32/1000, Train Loss: 0.000092, Validation Loss: 0.000195
+Epoch 33/1000, Train Loss: 0.000037, Validation Loss: 0.000023
+Epoch 34/1000, Train Loss: 0.000078, Validation Loss: 0.000230
+Epoch 35/1000, Train Loss: 0.000061, Validation Loss: 0.000012
+Epoch 36/1000, Train Loss: 0.000072, Validation Loss: 0.000033
+Epoch 37/1000, Train Loss: 0.000194, Validation Loss: 0.000066
+Epoch 38/1000, Train Loss: 0.000054, Validation Loss: 0.000020
+Early stopping at epoch 38
+Training completed!
+All predictions shape before reshape: (336, 65341, 1)
+All targets shape before reshape: (336, 65341, 1)
+All predictions shape after reshape: (336, 65341)
+All targets shape after reshape: (336, 65341)
+Predictions and targets saved to single_branch/array/gru_window_30_preds_targets.npy
+Results saved to single_branch/array/gru_window_30_results.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0000, MAE: 0.0000, R²: 0.9998, L2 Error: 0.0091
+(3.543413e-05, 2.8605413e-05, 0.9998255717262271, 0.009057633)

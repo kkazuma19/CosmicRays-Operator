@@ -1,0 +1,84 @@
+Using device: cuda
+Train input shape: (4017, 12)
+Validation input shape: (4018, 12)
+Test input shape: (365, 12)
+Training with window_size=7
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([4011, 7, 12])
+Train target shape: torch.Size([4011, 65341, 1])
+Validation input shape: torch.Size([4012, 7, 12])
+Validation target shape: torch.Size([4012, 65341, 1])
+Test input shape: torch.Size([359, 7, 12])
+Test target shape: torch.Size([359, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 16
+Set the hyperparameters
+-----------------------------------------
+multi_branch/lstm_window_7.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 10
+Loss function: MSELoss()
+-----------------------------------------
+Epoch 1/1000, Train Loss: 10.866880, Val Loss: 0.009394
+Epoch 2/1000, Train Loss: 0.015017, Val Loss: 0.005845
+Epoch 3/1000, Train Loss: 0.011240, Val Loss: 0.002992
+Epoch 4/1000, Train Loss: 0.004167, Val Loss: 0.001038
+Epoch 5/1000, Train Loss: 0.001864, Val Loss: 0.001947
+Epoch 6/1000, Train Loss: 0.001859, Val Loss: 0.000620
+Epoch 7/1000, Train Loss: 0.001581, Val Loss: 0.000929
+Epoch 8/1000, Train Loss: 0.001666, Val Loss: 0.000746
+Epoch 9/1000, Train Loss: 0.001461, Val Loss: 0.001848
+Epoch 10/1000, Train Loss: 0.001437, Val Loss: 0.001112
+Epoch 11/1000, Train Loss: 0.001707, Val Loss: 0.000409
+Epoch 12/1000, Train Loss: 0.001571, Val Loss: 0.001016
+Epoch 13/1000, Train Loss: 0.001573, Val Loss: 0.000571
+Epoch 14/1000, Train Loss: 0.001703, Val Loss: 0.000398
+Epoch 15/1000, Train Loss: 0.001550, Val Loss: 0.000673
+Epoch 16/1000, Train Loss: 0.001570, Val Loss: 0.001460
+Epoch 17/1000, Train Loss: 0.001608, Val Loss: 0.001509
+Epoch 18/1000, Train Loss: 0.001713, Val Loss: 0.000959
+Epoch 19/1000, Train Loss: 0.001629, Val Loss: 0.001320
+Epoch 20/1000, Train Loss: 0.002007, Val Loss: 0.000459
+Epoch 21/1000, Train Loss: 0.001508, Val Loss: 0.000588
+Epoch 22/1000, Train Loss: 0.001539, Val Loss: 0.000506
+Epoch 23/1000, Train Loss: 0.001426, Val Loss: 0.000502
+Epoch 24/1000, Train Loss: 0.001324, Val Loss: 0.000382
+Epoch 25/1000, Train Loss: 0.001569, Val Loss: 0.000609
+Epoch 26/1000, Train Loss: 0.001456, Val Loss: 0.000461
+Epoch 27/1000, Train Loss: 0.001341, Val Loss: 0.000534
+Epoch 28/1000, Train Loss: 0.001527, Val Loss: 0.000628
+Epoch 29/1000, Train Loss: 0.001722, Val Loss: 0.005095
+Epoch 30/1000, Train Loss: 0.001442, Val Loss: 0.000989
+Epoch 31/1000, Train Loss: 0.001542, Val Loss: 0.000670
+Epoch 32/1000, Train Loss: 0.001136, Val Loss: 0.000277
+Epoch 33/1000, Train Loss: 0.001159, Val Loss: 0.000322
+Epoch 34/1000, Train Loss: 0.001503, Val Loss: 0.001074
+Epoch 35/1000, Train Loss: 0.001212, Val Loss: 0.000347
+Epoch 36/1000, Train Loss: 0.001655, Val Loss: 0.001899
+Epoch 37/1000, Train Loss: 0.001369, Val Loss: 0.000520
+Epoch 38/1000, Train Loss: 0.001325, Val Loss: 0.000163
+Epoch 39/1000, Train Loss: 0.001343, Val Loss: 0.006286
+Epoch 40/1000, Train Loss: 0.001060, Val Loss: 0.008240
+Epoch 41/1000, Train Loss: 0.001496, Val Loss: 0.001415
+Epoch 42/1000, Train Loss: 0.002239, Val Loss: 0.001051
+Epoch 43/1000, Train Loss: 0.000787, Val Loss: 0.000317
+Epoch 44/1000, Train Loss: 1518.852645, Val Loss: 0.009572
+Epoch 45/1000, Train Loss: 0.041942, Val Loss: 0.006362
+Epoch 46/1000, Train Loss: 0.011877, Val Loss: 0.002852
+Epoch 47/1000, Train Loss: 0.004157, Val Loss: 0.001032
+Epoch 48/1000, Train Loss: 0.002565, Val Loss: 0.000662
+Early stopping
+Training completed
+All predictions shape before reshape: (359, 65341, 1)
+All targets shape before reshape: (359, 65341, 1)
+All predictions shape after reshape: (359, 65341)
+All targets shape after reshape: (359, 65341)
+Predictions and targets saved to multi_branch/array/lstm_window_7_preds_targets.npy
+Results saved to multi_branch/array/lstm_window_7_results.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0002, MAE: 0.0002, R²: 0.9926, L2 Error: 0.0483
+(0.00018914306, 0.00016839617, 0.9925561646408302, 0.048348535)

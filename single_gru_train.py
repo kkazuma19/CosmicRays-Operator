@@ -248,13 +248,6 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
     # Convert lists to numpy arrays
     all_preds = np.concatenate(all_preds, axis=0)
     all_targets = np.concatenate(all_targets, axis=0)
-    
-    # save the predictions and targets to a file
-    save_path = os.path.join(save_dir, f'array/gru_window_{window_size}_predictions.npy')
-    np.save(save_path, all_preds)
-    
-    print("All predictions shape before reshape:", all_preds.shape)
-    print("All targets shape before reshape:", all_targets.shape)
 
     # Reshape to 2D (n_samples, n_features) for inverse scaling
     all_preds = all_preds.reshape(all_preds.shape[0], -1)

@@ -1,0 +1,70 @@
+Using device: cuda
+Train input shape: (4017, 12)
+Validation input shape: (4018, 12)
+Test input shape: (365, 12)
+Training with window_size=7
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([4011, 7, 12])
+Train target shape: torch.Size([4011, 65341, 1])
+Validation input shape: torch.Size([4012, 7, 12])
+Validation target shape: torch.Size([4012, 65341, 1])
+Test input shape: torch.Size([359, 7, 12])
+Test target shape: torch.Size([359, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 16
+SequentialDeepONet(
+  (branch_net): LSTM(
+    (lstm): LSTM(12, 128, num_layers=4, batch_first=True)
+    (layer_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+    (fc): Linear(in_features=128, out_features=128, bias=True)
+  )
+  (trunk_net): FCN(
+    (network): Sequential(
+      (0): Linear(in_features=2, out_features=128, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=128, out_features=128, bias=True)
+      (3): ReLU()
+      (4): Linear(in_features=128, out_features=128, bias=True)
+    )
+  )
+  (final_layer): Linear(in_features=128, out_features=1, bias=True)
+)
+Set the hyperparameters
+-----------------------------------------
+single_branch/lstm_window_7.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 10
+Loss function: MSELoss()
+-----------------------------------------
+Epoch 1/1000, Train Loss: 0.012344, Validation Loss: 0.000405
+Epoch 2/1000, Train Loss: 0.001127, Validation Loss: 0.000766
+Epoch 3/1000, Train Loss: 0.001052, Validation Loss: 0.001347
+Epoch 4/1000, Train Loss: 0.000439, Validation Loss: 0.000045
+Epoch 5/1000, Train Loss: 0.000075, Validation Loss: 0.000022
+Epoch 6/1000, Train Loss: 0.000060, Validation Loss: 0.000031
+Epoch 7/1000, Train Loss: 0.000082, Validation Loss: 0.000012
+Epoch 8/1000, Train Loss: 0.000067, Validation Loss: 0.000020
+Epoch 9/1000, Train Loss: 0.000056, Validation Loss: 0.000012
+Epoch 10/1000, Train Loss: 0.000137, Validation Loss: 0.000015
+Epoch 11/1000, Train Loss: 0.000049, Validation Loss: 0.000021
+Epoch 12/1000, Train Loss: 0.000086, Validation Loss: 0.000108
+Epoch 13/1000, Train Loss: 0.000067, Validation Loss: 0.000021
+Epoch 14/1000, Train Loss: 0.000090, Validation Loss: 0.000148
+Epoch 15/1000, Train Loss: 0.000273, Validation Loss: 0.000038
+Epoch 16/1000, Train Loss: 0.000086, Validation Loss: 0.000055
+Epoch 17/1000, Train Loss: 0.000054, Validation Loss: 0.000067
+Early stopping at epoch 17
+Training completed!
+All predictions shape before reshape: (359, 65341, 1)
+All targets shape before reshape: (359, 65341, 1)
+All predictions shape after reshape: (359, 65341)
+All targets shape after reshape: (359, 65341)
+Predictions and targets saved to single_branch/array/lstm_window_7_preds_targets.npy
+Results saved to single_branch/array/lstm_window_7_results.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0000, MAE: 0.0000, R²: 0.9997, L2 Error: 0.0114
+(4.4454428e-05, 3.5937366e-05, 0.9997276797101596, 0.011363389)

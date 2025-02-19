@@ -1,0 +1,21 @@
+usage: conda [-h] [-v] [--no-plugins] [-V] COMMAND ...
+conda: error: argument COMMAND: invalid choice: 'deactivate' (choose from 'clean', 'compare', 'config', 'create', 'info', 'init', 'install', 'list', 'notices', 'package', 'remove', 'uninstall', 'rename', 'run', 'search', 'update', 'upgrade', 'build', 'content-trust', 'convert', 'debug', 'develop', 'doctor', 'index', 'inspect', 'metapackage', 'render', 'repoquery', 'skeleton', 'verify', 'token', 'server', 'repo', 'env')
+A conda environment has been detected CONDA_PREFIX=
+/sw/external/python/anaconda3 
+anaconda3_gpu is loaded. Consider running conda deactivate and reloading it.
+# conda environments:
+#
+base                     /sw/external/python/anaconda3
+DiffusionPDE             /u/kazumak2/.conda/envs/DiffusionPDE
+pytorch-2_3_1            /u/kazumak2/.conda/envs/pytorch-2_3_1
+pytorch-env           *  /u/kazumak2/.conda/envs/pytorch-env
+
+Starting job for window_size=7 on GPU 0
+Starting job for window_size=30 on GPU 1
+Starting job for window_size=60 on GPU 2
+Starting job for window_size=90 on GPU 3
+Starting job for window_size=7 on GPU 0
+Starting job for window_size=30 on GPU 1
+Starting job for window_size=60 on GPU 2
+Starting job for window_size=90 on GPU 3
+All training jobs completed.

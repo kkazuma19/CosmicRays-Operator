@@ -1,0 +1,55 @@
+Using device: cuda
+Train input shape: (4017, 12)
+Validation input shape: (4018, 12)
+Test input shape: (365, 12)
+Training with window_size=90
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([3928, 90, 12])
+Train target shape: torch.Size([3928, 65341, 1])
+Validation input shape: torch.Size([3929, 90, 12])
+Validation target shape: torch.Size([3929, 65341, 1])
+Test input shape: torch.Size([276, 90, 12])
+Test target shape: torch.Size([276, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 16
+Set the hyperparameters
+-----------------------------------------
+multi_branch/gru_window_90.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 10
+Loss function: MSELoss()
+-----------------------------------------
+Epoch 1/1000, Train Loss: 27111.754859, Val Loss: 0.001367
+Epoch 2/1000, Train Loss: 0.001937, Val Loss: 0.000489
+Epoch 3/1000, Train Loss: 0.001857, Val Loss: 0.001396
+Epoch 4/1000, Train Loss: 0.002343, Val Loss: 0.001820
+Epoch 5/1000, Train Loss: 0.002113, Val Loss: 0.004559
+Epoch 6/1000, Train Loss: 0.002862, Val Loss: 0.000570
+Epoch 7/1000, Train Loss: 0.003092, Val Loss: 0.001883
+Epoch 8/1000, Train Loss: 0.002904, Val Loss: 0.001506
+Epoch 9/1000, Train Loss: 0.002681, Val Loss: 0.000354
+Epoch 10/1000, Train Loss: 0.002487, Val Loss: 0.000509
+Epoch 11/1000, Train Loss: 0.003159, Val Loss: 0.001553
+Epoch 12/1000, Train Loss: 0.004708, Val Loss: 0.003235
+Epoch 13/1000, Train Loss: 0.002475, Val Loss: 0.000469
+Epoch 14/1000, Train Loss: 0.003284, Val Loss: 0.000364
+Epoch 15/1000, Train Loss: 0.002771, Val Loss: 0.001323
+Epoch 16/1000, Train Loss: 0.003751, Val Loss: 0.001450
+Epoch 17/1000, Train Loss: 0.003779, Val Loss: 0.001550
+Epoch 18/1000, Train Loss: 0.002645, Val Loss: 0.005056
+Epoch 19/1000, Train Loss: 0.002657, Val Loss: 0.021868
+Early stopping
+Training completed
+All predictions shape before reshape: (276, 65341, 1)
+All targets shape before reshape: (276, 65341, 1)
+All predictions shape after reshape: (276, 65341)
+All targets shape after reshape: (276, 65341)
+Predictions and targets saved to multi_branch/array/gru_window_90_preds_targets.npy
+Results saved to multi_branch/array/gru_window_90_results.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0003, MAE: 0.0002, R²: 0.9876, L2 Error: 0.0639
+(0.00025002382, 0.00022225706, 0.9875919577128682, 0.063910805)
