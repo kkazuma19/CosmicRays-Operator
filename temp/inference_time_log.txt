@@ -4,7 +4,7 @@ Test target shape: torch.Size([359, 65341, 1])
 Model: single_branch, Branch type: lstm, Sequence length: 7
 Trainable Parameters: 519,297
 Model: single_branch
-Mean Inference Time per Sample: 1.031e-03 ± 1.170e-04 seconds/sample
+Mean Inference Time per Sample: 9.987e-04 ± 1.128e-04 seconds/sample
 
 
 
@@ -14,7 +14,7 @@ Test target shape: torch.Size([336, 65341, 1])
 Model: single_branch, Branch type: lstm, Sequence length: 30
 Trainable Parameters: 519,297
 Model: single_branch
-Mean Inference Time per Sample: 9.973e-04 ± 5.573e-06 seconds/sample
+Mean Inference Time per Sample: 1.035e-03 ± 9.293e-06 seconds/sample
 
 
 
@@ -24,7 +24,7 @@ Test target shape: torch.Size([306, 65341, 1])
 Model: single_branch, Branch type: lstm, Sequence length: 60
 Trainable Parameters: 519,297
 Model: single_branch
-Mean Inference Time per Sample: 1.061e-03 ± 1.974e-04 seconds/sample
+Mean Inference Time per Sample: 1.037e-03 ± 1.926e-04 seconds/sample
 
 
 
@@ -34,7 +34,7 @@ Test target shape: torch.Size([276, 65341, 1])
 Model: single_branch, Branch type: lstm, Sequence length: 90
 Trainable Parameters: 519,297
 Model: single_branch
-Mean Inference Time per Sample: 1.074e-03 ± 1.774e-04 seconds/sample
+Mean Inference Time per Sample: 1.074e-03 ± 1.768e-04 seconds/sample
 
 
 
@@ -44,7 +44,7 @@ Test target shape: torch.Size([359, 65341, 1])
 Model: single_branch, Branch type: gru, Sequence length: 7
 Trainable Parameters: 402,049
 Model: single_branch
-Mean Inference Time per Sample: 9.904e-04 ± 1.118e-04 seconds/sample
+Mean Inference Time per Sample: 9.963e-04 ± 1.103e-04 seconds/sample
 
 
 
@@ -54,7 +54,7 @@ Test target shape: torch.Size([336, 65341, 1])
 Model: single_branch, Branch type: gru, Sequence length: 30
 Trainable Parameters: 402,049
 Model: single_branch
-Mean Inference Time per Sample: 1.023e-03 ± 3.513e-06 seconds/sample
+Mean Inference Time per Sample: 1.023e-03 ± 7.389e-06 seconds/sample
 
 
 
@@ -64,7 +64,7 @@ Test target shape: torch.Size([306, 65341, 1])
 Model: single_branch, Branch type: gru, Sequence length: 60
 Trainable Parameters: 402,049
 Model: single_branch
-Mean Inference Time per Sample: 1.010e-03 ± 1.907e-04 seconds/sample
+Mean Inference Time per Sample: 1.015e-03 ± 1.924e-04 seconds/sample
 
 
 
@@ -74,7 +74,7 @@ Test target shape: torch.Size([276, 65341, 1])
 Model: single_branch, Branch type: gru, Sequence length: 90
 Trainable Parameters: 402,049
 Model: single_branch
-Mean Inference Time per Sample: 1.039e-03 ± 1.753e-04 seconds/sample
+Mean Inference Time per Sample: 1.044e-03 ± 1.763e-04 seconds/sample
 
 
 
@@ -84,7 +84,7 @@ Test target shape: torch.Size([359, 65341, 1])
 Model: multi_branch, Branch type: lstm, Sequence length: 7
 Trainable Parameters: 5,795,073
 Model: multi_branch
-Mean Inference Time per Sample: 1.736e-03 ± 1.471e-04 seconds/sample
+Mean Inference Time per Sample: 1.744e-03 ± 1.495e-04 seconds/sample
 
 
 
@@ -94,7 +94,7 @@ Test target shape: torch.Size([336, 65341, 1])
 Model: multi_branch, Branch type: lstm, Sequence length: 30
 Trainable Parameters: 5,795,073
 Model: multi_branch
-Mean Inference Time per Sample: 1.974e-03 ± 6.032e-06 seconds/sample
+Mean Inference Time per Sample: 1.980e-03 ± 7.881e-06 seconds/sample
 
 
 
@@ -104,7 +104,7 @@ Test target shape: torch.Size([306, 65341, 1])
 Model: multi_branch, Branch type: lstm, Sequence length: 60
 Trainable Parameters: 5,795,073
 Model: multi_branch
-Mean Inference Time per Sample: 2.185e-03 ± 2.508e-04 seconds/sample
+Mean Inference Time per Sample: 2.189e-03 ± 2.530e-04 seconds/sample
 
 
 
@@ -114,7 +114,7 @@ Test target shape: torch.Size([276, 65341, 1])
 Model: multi_branch, Branch type: lstm, Sequence length: 90
 Trainable Parameters: 5,795,073
 Model: multi_branch
-Mean Inference Time per Sample: 2.505e-03 ± 2.407e-04 seconds/sample
+Mean Inference Time per Sample: 2.486e-03 ± 2.357e-04 seconds/sample
 
 
 
@@ -124,7 +124,7 @@ Test target shape: torch.Size([359, 65341, 1])
 Model: multi_branch, Branch type: gru, Sequence length: 7
 Trainable Parameters: 4,404,993
 Model: multi_branch
-Mean Inference Time per Sample: 1.664e-03 ± 1.535e-04 seconds/sample
+Mean Inference Time per Sample: 1.645e-03 ± 1.487e-04 seconds/sample
 
 
 
@@ -134,7 +134,7 @@ Test target shape: torch.Size([336, 65341, 1])
 Model: multi_branch, Branch type: gru, Sequence length: 30
 Trainable Parameters: 4,404,993
 Model: multi_branch
-Mean Inference Time per Sample: 1.772e-03 ± 8.410e-06 seconds/sample
+Mean Inference Time per Sample: 1.769e-03 ± 9.837e-06 seconds/sample
 
 
 
@@ -144,7 +144,7 @@ Test target shape: torch.Size([306, 65341, 1])
 Model: multi_branch, Branch type: gru, Sequence length: 60
 Trainable Parameters: 4,404,993
 Model: multi_branch
-Mean Inference Time per Sample: 1.870e-03 ± 2.536e-04 seconds/sample
+Mean Inference Time per Sample: 1.860e-03 ± 2.509e-04 seconds/sample
 
 
 
@@ -154,7 +154,7 @@ Test target shape: torch.Size([276, 65341, 1])
 Model: multi_branch, Branch type: gru, Sequence length: 90
 Trainable Parameters: 4,404,993
 Model: multi_branch
-Mean Inference Time per Sample: 1.968e-03 ± 2.219e-04 seconds/sample
+Mean Inference Time per Sample: 1.961e-03 ± 2.214e-04 seconds/sample
 
 
 
