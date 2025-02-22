@@ -6,4 +6,4 @@ MYPORT=$(($(($RANDOM % 10000))+49152))
 echo "Using port: $MYPORT"
 
 # Run the jupyter-notebook command with the specified parameters
-srun --account=bcnx-delta-gpu --partition=gpuA40x4 --gpus=1 --time=06:00:00 --nodes=1 --ntasks-per-node=1 --mem=32g jupyter-notebook --no-browser --port=$MYPORT --ip=0.0.0.0
+srun --account=bcnx-delta-gpu --partition=gpuA100x4 --gpus=1 --time=04:00:00 --nodes=1 --ntasks-per-node=1 --mem=32g jupyter-notebook --no-browser --port=$MYPORT --ip=0.0.0.0
