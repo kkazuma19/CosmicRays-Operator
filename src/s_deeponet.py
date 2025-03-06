@@ -64,7 +64,9 @@ class SequentialDeepONet(nn.Module):
 
         else:
             # If self.num_outputs < hidden_size, slice the output to match self.num_outputs
-            combined_output = combined_output[..., :self.num_outputs]
+            #combined_output = combined_output[..., :self.num_outputs]
+            combined_output = combined_output.sum(dim=-1, keepdim=True)  # Shape: [batch_size, num_trunk_points, 1]
+
 
             # Add bias
             combined_output += self.b

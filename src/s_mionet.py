@@ -60,13 +60,16 @@ class SequentialMIONet(nn.Module):
 
         # Combine branch and trunk outputs
         combined_output = torch.einsum('bi,bpi->bpi', combined_branch_output, trunk_output)  # Shape: (batch_size, num_trunk_points, hidden_size)
+
+        #print('debug point1', combined_output.shape)
         
         if self.use_transform:
             # Final layer for prediction at each trunk point
             combined_output = self.final_layer(combined_output)
         else:
             # If self.num_outputs < hidden_size, slice the output to match self.num_outputs
-            combined_output = combined_output[..., :self.num_outputs]
+            #combined_output = combined_output[..., :self.num_outputs]
+            combined_output = combined_output.sum(dim=-1, keepdim=True)  # Shape: [batch_size, num_trunk_points, 1]
 
             # Add bias
             combined_output += self.b
