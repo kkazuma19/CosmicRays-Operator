@@ -143,7 +143,7 @@ def init_model():
         branch_output_size=dim,
         trunk_architecture=[2, 128, 128, dim],
         num_outputs=1,
-        use_transform=True,
+        use_transform=False,
         activation_fn=nn.ReLU,
     )
     return model

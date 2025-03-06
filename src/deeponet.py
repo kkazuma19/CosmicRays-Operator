@@ -41,6 +41,8 @@ class DeepONet(nn.Module):
             trunk_output.append(self.trunk_net(trunk_input[i]))  # Output for each sample: (num_trunk_points, hidden_size)
         trunk_output = torch.stack(trunk_output)  # Shape: (batch_size, num_trunk_points, hidden_size)
 
+        print('Branch output shape:', branch_output.shape)
+        print('Trunk output shape:', trunk_output.shape)
         # Combine branch and trunk outputs using einsum
         combined_output = torch.einsum('bi,bpi->bpi', branch_output, trunk_output)  # Shape: (batch_size, num_trunk_points, hidden_size)
 

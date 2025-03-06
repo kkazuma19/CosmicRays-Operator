@@ -154,7 +154,7 @@ def init_model():
     num_outputs = 1
 
     # Instantiate the model with the replicated branches
-    model = SequentialMIONet(branches_config, trunk_architecture, num_outputs)
+    model = SequentialMIONet(branches_config, trunk_architecture, num_outputs ,use_transform=False)
 
     return model
 
