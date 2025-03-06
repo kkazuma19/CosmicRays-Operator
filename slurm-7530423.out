@@ -18,3 +18,4 @@ Starting job for window_size=7 on GPU 0
 Starting job for window_size=30 on GPU 1
 Starting job for window_size=60 on GPU 2
 Starting job for window_size=90 on GPU 3
+All training jobs completed.
