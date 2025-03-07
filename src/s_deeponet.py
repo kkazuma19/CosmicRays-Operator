@@ -14,7 +14,6 @@ class SequentialDeepONet(nn.Module):
         super(SequentialDeepONet, self).__init__()
 
         self.use_transform = use_transform
-        #self.num_timesteps = num_timesteps
         self.num_outputs = num_outputs
 
         # Initialize the branch network based on the specified type
@@ -32,6 +31,8 @@ class SequentialDeepONet(nn.Module):
             self.branch_net = Transformer(branch_input_size, branch_hidden_size, num_heads, branch_num_layers, branch_output_size)
         elif branch_type == 'informer':
             self.branch_net = Informer(branch_input_size, branch_hidden_size, num_heads, branch_num_layers, branch_output_size)
+        elif branch_type == 'fcn':  # New FCN-based branch option
+            self.branch_net = FCN([branch_input_size] + [branch_hidden_size] * (branch_num_layers - 1) + [branch_output_size], activation_fn)
         else:
             raise ValueError(f"Unsupported branch type: {branch_type}")
 
@@ -41,34 +42,25 @@ class SequentialDeepONet(nn.Module):
         if self.use_transform:
             self.final_layer = nn.Linear(branch_output_size, num_outputs)
         else:
-            # Optional bias
-            self.b = nn.Parameter(torch.zeros(1))
+            self.b = nn.Parameter(torch.zeros(1))  # Optional bias
 
     def forward(self, branch_input, trunk_input):
         # Process branch input (sequential data) through the selected branch network
-        branch_output = self.branch_net(branch_input)  # Assume this gives (batch_size, branch_output_size)
+        branch_output = self.branch_net(branch_input)  
 
-        # Get the last timestep output from the branch network
-        branch_output = branch_output[:, -1, :]
+        if len(branch_output.shape) == 3:  # If sequential (RNN, LSTM, GRU, etc.)
+            branch_output = branch_output[:, -1, :]  # Take last time step
 
         # Process trunk input (spatial data) through the trunk network
         trunk_output = self.trunk_net(trunk_input)
 
-        #print(branch_output.shape, trunk_output.shape)
+        # Combine branch and trunk outputs using einsum
         combined_output = torch.einsum('bi,bpi->bpi', branch_output, trunk_output)  # Shape: (batch_size, num_trunk_points, hidden_size)
     
-
         if self.use_transform:
-            # Final layer for prediction at each trunk point
-            combined_output = self.final_layer(combined_output)
-
+            combined_output = self.final_layer(combined_output)  # Final prediction
         else:
-            # If self.num_outputs < hidden_size, slice the output to match self.num_outputs
-            #combined_output = combined_output[..., :self.num_outputs]
-            combined_output = combined_output.sum(dim=-1, keepdim=True)  # Shape: [batch_size, num_trunk_points, 1]
-
-
-            # Add bias
-            combined_output += self.b
+            combined_output = combined_output.sum(dim=-1, keepdim=True)  # Reduce last dimension
+            combined_output += self.b  # Add bias
 
         return combined_output
