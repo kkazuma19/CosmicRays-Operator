@@ -19,7 +19,6 @@ SequentialDeepONet(
   (branch_net): LSTM(
     (lstm): LSTM(12, 128, num_layers=4, batch_first=True)
     (layer_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
-    (fc): Linear(in_features=128, out_features=128, bias=True)
   )
   (trunk_net): FCN(
     (network): Sequential(
@@ -33,51 +32,54 @@ SequentialDeepONet(
 )
 Set the hyperparameters
 -----------------------------------------
-single_branch/lstm_window_7.pth
+single_branch/lstm_window_7_1.pth
 Number of epochs: 1000
 Learning rate: 0.001
 Patience: 10
 Loss function: MSELoss()
 -----------------------------------------
-Epoch 1/1000, Train Loss: 0.057604, Validation Loss: 0.000324
-Epoch 2/1000, Train Loss: 0.001060, Validation Loss: 0.000286
-Epoch 3/1000, Train Loss: 0.001042, Validation Loss: 0.000817
-Epoch 4/1000, Train Loss: 0.001088, Validation Loss: 0.000209
-Epoch 5/1000, Train Loss: 0.000897, Validation Loss: 0.000212
-Epoch 6/1000, Train Loss: 0.000766, Validation Loss: 0.000395
-Epoch 7/1000, Train Loss: 0.000714, Validation Loss: 0.000125
-Epoch 8/1000, Train Loss: 0.000502, Validation Loss: 0.000086
-Epoch 9/1000, Train Loss: 0.000294, Validation Loss: 0.000097
-Epoch 10/1000, Train Loss: 0.000152, Validation Loss: 0.000049
-Epoch 11/1000, Train Loss: 0.000069, Validation Loss: 0.000019
-Epoch 12/1000, Train Loss: 0.000040, Validation Loss: 0.000028
-Epoch 13/1000, Train Loss: 0.000040, Validation Loss: 0.000010
-Epoch 14/1000, Train Loss: 0.000043, Validation Loss: 0.000039
-Epoch 15/1000, Train Loss: 0.000048, Validation Loss: 0.000014
-Epoch 16/1000, Train Loss: 0.000042, Validation Loss: 0.000047
-Epoch 17/1000, Train Loss: 0.000092, Validation Loss: 0.000012
-Epoch 18/1000, Train Loss: 0.000062, Validation Loss: 0.000011
-Epoch 19/1000, Train Loss: 0.000141, Validation Loss: 0.000016
-Epoch 20/1000, Train Loss: 0.000095, Validation Loss: 0.000058
-Epoch 21/1000, Train Loss: 0.000074, Validation Loss: 0.000008
-Epoch 22/1000, Train Loss: 0.000082, Validation Loss: 0.000425
-Epoch 23/1000, Train Loss: 0.000162, Validation Loss: 0.000032
-Epoch 24/1000, Train Loss: 0.000127, Validation Loss: 0.000181
-Epoch 25/1000, Train Loss: 0.000058, Validation Loss: 0.000014
-Epoch 26/1000, Train Loss: 0.000076, Validation Loss: 0.000208
-Epoch 27/1000, Train Loss: 0.000075, Validation Loss: 0.000030
-Epoch 28/1000, Train Loss: 0.000064, Validation Loss: 0.000011
-Epoch 29/1000, Train Loss: 0.000134, Validation Loss: 0.000018
-Epoch 30/1000, Train Loss: 0.000103, Validation Loss: 0.000052
-Epoch 31/1000, Train Loss: 0.000109, Validation Loss: 0.000031
-Early stopping at epoch 31
+Epoch 1/1000, Train Loss: 0.108916, Validation Loss: 0.000403
+Epoch 2/1000, Train Loss: 0.001256, Validation Loss: 0.000473
+Epoch 3/1000, Train Loss: 0.001124, Validation Loss: 0.000772
+Epoch 4/1000, Train Loss: 0.001064, Validation Loss: 0.000299
+Epoch 5/1000, Train Loss: 0.001022, Validation Loss: 0.000477
+Epoch 6/1000, Train Loss: 0.000957, Validation Loss: 0.000261
+Epoch 7/1000, Train Loss: 0.000803, Validation Loss: 0.000240
+Epoch 8/1000, Train Loss: 0.000959, Validation Loss: 0.000723
+Epoch 9/1000, Train Loss: 0.000624, Validation Loss: 0.000848
+Epoch 10/1000, Train Loss: 0.000401, Validation Loss: 0.000624
+Epoch 11/1000, Train Loss: 0.000213, Validation Loss: 0.000188
+Epoch 12/1000, Train Loss: 0.000110, Validation Loss: 0.000473
+Epoch 13/1000, Train Loss: 0.000144, Validation Loss: 0.000056
+Epoch 14/1000, Train Loss: 0.000067, Validation Loss: 0.000033
+Epoch 15/1000, Train Loss: 0.000101, Validation Loss: 0.000011
+Epoch 16/1000, Train Loss: 0.000424, Validation Loss: 0.000027
+Epoch 17/1000, Train Loss: 0.000104, Validation Loss: 0.000331
+Epoch 18/1000, Train Loss: 0.000246, Validation Loss: 0.000241
+Epoch 19/1000, Train Loss: 0.000089, Validation Loss: 0.002446
+Epoch 20/1000, Train Loss: 0.000212, Validation Loss: 0.000028
+Epoch 21/1000, Train Loss: 0.000257, Validation Loss: 0.000208
+Epoch 22/1000, Train Loss: 0.000218, Validation Loss: 0.000147
+Epoch 23/1000, Train Loss: 0.000157, Validation Loss: 0.000371
+Epoch 24/1000, Train Loss: 0.000155, Validation Loss: 0.000008
+Epoch 25/1000, Train Loss: 0.000183, Validation Loss: 0.001781
+Epoch 26/1000, Train Loss: 0.000155, Validation Loss: 0.000041
+Epoch 27/1000, Train Loss: 0.000121, Validation Loss: 0.000034
+Epoch 28/1000, Train Loss: 0.000090, Validation Loss: 0.000013
+Epoch 29/1000, Train Loss: 0.000073, Validation Loss: 0.000062
+Epoch 30/1000, Train Loss: 0.001163, Validation Loss: 0.000015
+Epoch 31/1000, Train Loss: 0.000029, Validation Loss: 0.000018
+Epoch 32/1000, Train Loss: 0.000030, Validation Loss: 0.000008
+Epoch 33/1000, Train Loss: 0.000038, Validation Loss: 0.000041
+Epoch 34/1000, Train Loss: 0.000054, Validation Loss: 0.000047
+Early stopping at epoch 34
 Training completed!
 All predictions shape before reshape: (359, 65341, 1)
 All targets shape before reshape: (359, 65341, 1)
 All predictions shape after reshape: (359, 65341)
 All targets shape after reshape: (359, 65341)
-Predictions and targets saved to single_branch/array/lstm_window_7_preds_targets.npy
-Results saved to single_branch/array/lstm_window_7_results.npy
+Predictions and targets saved to single_branch/array/lstm_window_7_preds_targets_1.npy
+Results saved to single_branch/array/lstm_window_7_results_1.npy
 Final Model Evaluation on Test Set:
-RMSE: 0.0000, MAE: 0.0000, R²: 0.9998, L2 Error: 0.0086
-(3.350916e-05, 2.7458238e-05, 0.9998496295204791, 0.008565573)
+RMSE: 0.0000, MAE: 0.0000, R²: 0.9998, L2 Error: 0.0089
+(3.4942586e-05, 2.8337101e-05, 0.9998365280670869, 0.008931985)

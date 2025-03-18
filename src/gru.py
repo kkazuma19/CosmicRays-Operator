@@ -11,6 +11,7 @@ class GRU(nn.Module):
         self.gru = nn.GRU(input_size, hidden_size, num_layers, batch_first=True)
         
         # Layer normalization
+        #
         self.layer_norm = nn.LayerNorm(hidden_size)
 
         # Fully connected layer

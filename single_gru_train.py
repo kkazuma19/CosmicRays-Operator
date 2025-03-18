@@ -161,7 +161,7 @@ print(save_path)
 
 num_epochs = 1000
 learning_rate = 1e-3
-patience = 5
+patience = 10
 
 print("Number of epochs:", num_epochs)
 print("Learning rate:", learning_rate)

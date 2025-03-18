@@ -25,9 +25,9 @@ class RNN(nn.Module):
         out, _ = self.rnn(x, h0)  # RNN output
         
         # Apply layer normalization to RNN outputs (applied to the last hidden layer)
-        out = self.layer_norm(out)
+        #out = self.layer_norm(out)
 
         # Fully connected layer (taking the output of the last time step)
         #out = self.fc(out[:, -1, :])
-        out = self.fc(out)
+        #out = self.fc(out)
         return out
