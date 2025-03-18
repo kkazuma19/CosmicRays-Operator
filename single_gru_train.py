@@ -21,11 +21,11 @@ print('Using device:', device)
 
 import random
 
-seed = 42
-random.seed(seed)
-np.random.seed(seed)
-torch.manual_seed(seed)
-torch.cuda.manual_seed_all(seed)
+#seed = 42
+#random.seed(seed)
+#np.random.seed(seed)
+#torch.manual_seed(seed)
+#torch.cuda.manual_seed_all(seed)
 
 
 # %%
@@ -156,12 +156,12 @@ print(model)
 print("Set the hyperparameters\n-----------------------------------------")
 # save path
 save_dir = 'single_branch/'
-save_path = os.path.join(save_dir, f'gru_window_{window_size}.pth')
+save_path = os.path.join(save_dir, f'gru_window_{window_size}_1.pth')
 print(save_path)
 
 num_epochs = 1000
 learning_rate = 1e-3
-patience = 10
+patience = 5
 
 print("Number of epochs:", num_epochs)
 print("Learning rate:", learning_rate)
@@ -261,7 +261,7 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
     all_targets = scaler.inverse_transform(all_targets)
     
     # save the predictions and targets to a file together
-    save_path = os.path.join(save_dir, f'array/gru_window_{window_size}_preds_targets.npy')
+    save_path = os.path.join(save_dir, f'array/gru_window_{window_size}_preds_targets_1.npy')
     np.save(save_path, np.stack((all_preds, all_targets), axis=1))
     print(f"Predictions and targets saved to {save_path}")
     
@@ -281,7 +281,7 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
     
     # save the results to a file
     results = np.stack((rmse, mae, r2, l2_error), axis=1)
-    save_path = os.path.join(save_dir, f'array/gru_window_{window_size}_results.npy')
+    save_path = os.path.join(save_dir, f'array/gru_window_{window_size}_results_1.npy')
     np.save(save_path, results)
     print(f"Results saved to {save_path}")
     
