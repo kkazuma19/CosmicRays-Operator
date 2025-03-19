@@ -14,3 +14,4 @@ Starting job for window_size=7 on GPU 0
 Starting job for window_size=60 on GPU 1
 Starting job for window_size= on GPU 2
 Starting job for window_size= on GPU 3
+slurmstepd: error: *** JOB 8378374 ON gpub044 CANCELLED AT 2025-03-19T12:42:24 ***

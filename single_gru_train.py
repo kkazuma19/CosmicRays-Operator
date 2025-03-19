@@ -50,8 +50,8 @@ def train_val_test_split(input_data, target):
     test_target = target[-test_size:]
 
     # Calculate split index for training and validation
-    train_size = int(len(train_val_input) * 0.8)  # 80% for training
-    val_size = len(train_val_input) - train_size  # 20% for validation
+    train_size = int(len(train_val_input) * 0.5)  
+    val_size = len(train_val_input) - train_size  
 
     # Training set
     train_input = train_val_input[:train_size]
