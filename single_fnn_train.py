@@ -21,7 +21,7 @@ print('Using device:', device)
 
 import random
 
-seed = 42
+seed = 4234
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
@@ -76,7 +76,7 @@ train_input, train_target, val_input, val_target, test_input, test_target = trai
 scaler = MinMaxScaler()
 
 # Add Gaussian noise directly to the test input
-noise_level = 0.01  # Set noise level (e.g., 10% noise)
+noise_level = 0.05  # Set noise level (e.g., 10% noise)
 noisy_test_input = test_input * (1 +  np.random.normal(0, noise_level, test_input.shape) )
 
 # Normalize the noisy test input using the same scaler

@@ -36,7 +36,7 @@ for i in {0..3}; do
 done
 
 # Wait for all background processes to finish
-#wait
+wait
 
 for i in {0..3}; do
     GPU_ID=$i
@@ -47,6 +47,8 @@ for i in {0..3}; do
     CUDA_VISIBLE_DEVICES=$GPU_ID python single_lstm_train.py --window_size $WINDOW_SIZE > logs/single_lstm_window_${WINDOW_SIZE}.log 2>&1 &
 done
 
+# Wait for all background processes to finish
+wait
 
 for i in {0..3}; do
     GPU_ID=$i
