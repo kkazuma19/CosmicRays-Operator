@@ -130,7 +130,7 @@ print("-----------------------------------------")
 # %%
 # Create DataLoaders for training and validation sets
 print("Create DataLoaders for training and validation sets\n-----------------------------------------")
-batch_size = 4
+batch_size = 16
 print("Batch size:", batch_size)
 
 train_dataset = SequentialDeepONetDataset(train_input_seq, trunk, train_target_seq)
@@ -176,7 +176,7 @@ print(save_path)
 
 num_epochs = 1000
 learning_rate = 1e-3
-patience = 8
+patience = 10
 
 print("Number of epochs:", num_epochs)
 print("Learning rate:", learning_rate)
