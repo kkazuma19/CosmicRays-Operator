@@ -22,11 +22,11 @@ print('Using device:', device)
 
 import random
 
-seed = 4234
-random.seed(seed)
-np.random.seed(seed)
-torch.manual_seed(seed)
-torch.cuda.manual_seed_all(seed)
+#seed = 1
+#random.seed(seed)
+#np.random.seed(seed)
+#torch.manual_seed(seed)
+#torch.cuda.manual_seed_all(seed)
 
 # %%
 # Load neutron monitoring data
@@ -50,7 +50,7 @@ def train_val_test_split(input_data, target):
     test_target = target[-test_size:]
 
     # Calculate split index for training and validation
-    train_size = int(len(train_val_input) * 0.5)  # 80% for training
+    train_size = int(len(train_val_input) * 0.8)  # 80% for training
     val_size = len(train_val_input) - train_size  # 20% for validation
 
     # Training set
@@ -130,7 +130,7 @@ print("-----------------------------------------")
 # %%
 # Create DataLoaders for training and validation sets
 print("Create DataLoaders for training and validation sets\n-----------------------------------------")
-batch_size = 16
+batch_size = 4
 print("Batch size:", batch_size)
 
 train_dataset = SequentialDeepONetDataset(train_input_seq, trunk, train_target_seq)
@@ -176,7 +176,7 @@ print(save_path)
 
 num_epochs = 1000
 learning_rate = 1e-3
-patience = 5
+patience = 8
 
 print("Number of epochs:", num_epochs)
 print("Learning rate:", learning_rate)

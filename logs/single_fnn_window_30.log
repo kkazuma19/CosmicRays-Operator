@@ -1,0 +1,77 @@
+Using device: cuda
+Train input shape: (6428, 12)
+Validation input shape: (1607, 12)
+Test input shape: (365, 12)
+Training with window_size=30
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([6399, 30, 12])
+Train target shape: torch.Size([6399, 65341, 1])
+Validation input shape: torch.Size([1578, 30, 12])
+Validation target shape: torch.Size([1578, 65341, 1])
+Test input shape: torch.Size([336, 30, 12])
+Test target shape: torch.Size([336, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 4
+SequentialDeepONet(
+  (branch_net): FCN(
+    (network): Sequential(
+      (0): Linear(in_features=12, out_features=128, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=128, out_features=128, bias=True)
+    )
+  )
+  (trunk_net): FCN(
+    (network): Sequential(
+      (0): Linear(in_features=2, out_features=128, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=128, out_features=128, bias=True)
+      (3): ReLU()
+      (4): Linear(in_features=128, out_features=128, bias=True)
+    )
+  )
+)
+Number of trainable parameters: 51585
+Set the hyperparameters
+-----------------------------------------
+single_branch/fnn_window_30_1.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 8
+Loss function: MSELoss()
+-----------------------------------------
+Epoch 1/1000, Train Loss: 0.001681, Validation Loss: 0.000021
+Epoch 2/1000, Train Loss: 0.000116, Validation Loss: 0.000163
+Epoch 3/1000, Train Loss: 0.000121, Validation Loss: 0.000252
+Epoch 4/1000, Train Loss: 0.000106, Validation Loss: 0.000055
+Epoch 5/1000, Train Loss: 0.000089, Validation Loss: 0.000024
+Epoch 6/1000, Train Loss: 0.000076, Validation Loss: 0.000057
+Epoch 7/1000, Train Loss: 0.000078, Validation Loss: 0.000066
+Epoch 8/1000, Train Loss: 0.000069, Validation Loss: 0.000008
+Epoch 9/1000, Train Loss: 0.000075, Validation Loss: 0.000023
+Epoch 10/1000, Train Loss: 0.000050, Validation Loss: 0.000015
+Epoch 11/1000, Train Loss: 0.000051, Validation Loss: 0.000015
+Epoch 12/1000, Train Loss: 0.000056, Validation Loss: 0.000029
+Epoch 13/1000, Train Loss: 0.000044, Validation Loss: 0.000041
+Epoch 14/1000, Train Loss: 0.000047, Validation Loss: 0.000018
+Epoch 15/1000, Train Loss: 0.000034, Validation Loss: 0.000010
+Epoch 16/1000, Train Loss: 0.000044, Validation Loss: 0.000096
+Early stopping at epoch 16
+Training completed!
+All predictions shape after reshape: (336, 65341)
+All targets shape after reshape: (336, 65341)
+Predictions and targets saved to single_branch/array/fnn_window_30_preds_targets_1.npy
+Results saved to single_branch/array/fnn_window_30_results_1.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0000, MAE: 0.0000, R²: 0.9997, L2 Error: 0.0117
+(4.5692424e-05, 3.894235e-05, 0.9997145198011107, 0.011679847)
+noisy
+All predictions shape after reshape: (336, 65341)
+All targets shape after reshape: (336, 65341)
+Predictions and targets saved to single_branch/array/noise_fnn_window_30_preds_targets_1.npy
+Results saved to single_branch/array/noise_fnn_window_30_results_1.npy
+Final Model Evaluation on Test Set:
+RMSE: 0.0003, MAE: 0.0003, R²: 0.9817, L2 Error: 0.0777
+(0.0003037881, 0.0002891867, 0.9816854876352019, 0.077653974)
