@@ -69,7 +69,7 @@ class MIONet(nn.Module):
         trunk_output = self.trunk_net(trunk_input)  # Output shape: (batch_size, num_trunk_points, hidden_size)
 
         # einsum implementation
-        combined_output = torch.einsum('bi,bpi->bpi', combined_branch_output, trunk_output)
+        combined_output = torch.einsum('bi,bpi->bpi', combined_branch_output, trunk_output) # Shape: (batch_size, num_trunk_points, hidden_size)
 
         # sum 
         #prediction = combined_output.sum(dim=-1) + self.bias

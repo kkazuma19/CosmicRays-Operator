@@ -1,0 +1,222 @@
+Using device: cuda
+Train input shape: (4017, 12)
+Validation input shape: (4018, 12)
+Test input shape: (365, 12)
+Training with window_size=7
+Check the shapes of the generated sequences
+-----------------------------------------
+Train input shape: torch.Size([4011, 7, 12])
+Train target shape: torch.Size([4011, 65341, 1])
+Validation input shape: torch.Size([4012, 7, 12])
+Validation target shape: torch.Size([4012, 65341, 1])
+Test input shape: torch.Size([359, 7, 12])
+Test target shape: torch.Size([359, 65341, 1])
+-----------------------------------------
+Create DataLoaders for training and validation sets
+-----------------------------------------
+Batch size: 16
+SequentialDeepONet(
+  (branch_net): GRU(
+    (gru): GRU(12, 128, num_layers=4, batch_first=True)
+    (layer_norm): LayerNorm((128,), eps=1e-05, elementwise_affine=True)
+    (fc): Linear(in_features=128, out_features=128, bias=True)
+  )
+  (trunk_net): FCN(
+    (network): Sequential(
+      (0): Linear(in_features=2, out_features=128, bias=True)
+      (1): ReLU()
+      (2): Linear(in_features=128, out_features=128, bias=True)
+      (3): ReLU()
+      (4): Linear(in_features=128, out_features=128, bias=True)
+    )
+  )
+)
+Set the hyperparameters
+-----------------------------------------
+single_branch/gru_window_7_1.pth
+Number of epochs: 1000
+Learning rate: 0.001
+Patience: 10
+Loss function: MSELoss()
+-----------------------------------------
+
+--- Repetition 1/5 ---
+Epoch 1: Train Loss: 0.076291, Val Loss: 0.000316
+Epoch 2: Train Loss: 0.001033, Val Loss: 0.000391
+Epoch 3: Train Loss: 0.000945, Val Loss: 0.000236
+Epoch 4: Train Loss: 0.000852, Val Loss: 0.000170
+Epoch 5: Train Loss: 0.000797, Val Loss: 0.000164
+Epoch 6: Train Loss: 0.000641, Val Loss: 0.000086
+Epoch 7: Train Loss: 0.000396, Val Loss: 0.000136
+Epoch 8: Train Loss: 0.000279, Val Loss: 0.000086
+Epoch 9: Train Loss: 0.000176, Val Loss: 0.000034
+Epoch 10: Train Loss: 0.000156, Val Loss: 0.000045
+Epoch 11: Train Loss: 0.000107, Val Loss: 0.000045
+Epoch 12: Train Loss: 0.000100, Val Loss: 0.000035
+Epoch 13: Train Loss: 0.000082, Val Loss: 0.000015
+Epoch 14: Train Loss: 0.000131, Val Loss: 0.000027
+Epoch 15: Train Loss: 0.000064, Val Loss: 0.000022
+Epoch 16: Train Loss: 0.000069, Val Loss: 0.000126
+Epoch 17: Train Loss: 0.000085, Val Loss: 0.000014
+Epoch 18: Train Loss: 0.000073, Val Loss: 0.000100
+Epoch 19: Train Loss: 0.000079, Val Loss: 0.000024
+Epoch 20: Train Loss: 0.000077, Val Loss: 0.000144
+Epoch 21: Train Loss: 0.000097, Val Loss: 0.000029
+Epoch 22: Train Loss: 0.000144, Val Loss: 0.000012
+Epoch 23: Train Loss: 0.000078, Val Loss: 0.000024
+Epoch 24: Train Loss: 0.000121, Val Loss: 0.000013
+Epoch 25: Train Loss: 0.000148, Val Loss: 0.000033
+Epoch 26: Train Loss: 0.000079, Val Loss: 0.000050
+Epoch 27: Train Loss: 0.000087, Val Loss: 0.000033
+Epoch 28: Train Loss: 0.000177, Val Loss: 0.000140
+Epoch 29: Train Loss: 0.000046, Val Loss: 0.000011
+Epoch 30: Train Loss: 0.000050, Val Loss: 0.000012
+Epoch 31: Train Loss: 0.000314, Val Loss: 0.000073
+Epoch 32: Train Loss: 0.000044, Val Loss: 0.000047
+Epoch 33: Train Loss: 0.000103, Val Loss: 0.000068
+Epoch 34: Train Loss: 0.000075, Val Loss: 0.000040
+Epoch 35: Train Loss: 0.000049, Val Loss: 0.000017
+Epoch 36: Train Loss: 0.000062, Val Loss: 0.000064
+Epoch 37: Train Loss: 0.000062, Val Loss: 0.000010
+Epoch 38: Train Loss: 0.000054, Val Loss: 0.000083
+Epoch 39: Train Loss: 0.000099, Val Loss: 0.000026
+Epoch 40: Train Loss: 0.000061, Val Loss: 0.000326
+Epoch 41: Train Loss: 0.017699, Val Loss: 0.000188
+Epoch 42: Train Loss: 0.000280, Val Loss: 0.000099
+Epoch 43: Train Loss: 0.000234, Val Loss: 0.000082
+Epoch 44: Train Loss: 0.000196, Val Loss: 0.000086
+Epoch 45: Train Loss: 0.000202, Val Loss: 0.000084
+Epoch 46: Train Loss: 0.000217, Val Loss: 0.000119
+Epoch 47: Train Loss: 0.000229, Val Loss: 0.000204
+Early stopping at epoch 47
+Repetition 1 completed: Total time = 1275.67s, Time/sample = 0.006767s
+
+--- Repetition 2/5 ---
+Epoch 1: Train Loss: 0.093128, Val Loss: 0.000306
+Epoch 2: Train Loss: 0.001043, Val Loss: 0.000332
+Epoch 3: Train Loss: 0.000998, Val Loss: 0.000219
+Epoch 4: Train Loss: 0.001005, Val Loss: 0.000193
+Epoch 5: Train Loss: 0.000843, Val Loss: 0.000168
+Epoch 6: Train Loss: 0.000710, Val Loss: 0.000194
+Epoch 7: Train Loss: 0.000645, Val Loss: 0.000123
+Epoch 8: Train Loss: 0.000455, Val Loss: 0.000095
+Epoch 9: Train Loss: 0.000295, Val Loss: 0.000197
+Epoch 10: Train Loss: 0.000248, Val Loss: 0.000038
+Epoch 11: Train Loss: 0.000176, Val Loss: 0.000033
+Epoch 12: Train Loss: 0.000115, Val Loss: 0.000041
+Epoch 13: Train Loss: 0.000126, Val Loss: 0.000028
+Epoch 14: Train Loss: 0.000130, Val Loss: 0.000025
+Epoch 15: Train Loss: 0.000103, Val Loss: 0.000025
+Epoch 16: Train Loss: 0.000124, Val Loss: 0.000273
+Epoch 17: Train Loss: 0.000192, Val Loss: 0.000310
+Epoch 18: Train Loss: 0.000171, Val Loss: 0.000014
+Epoch 19: Train Loss: 0.000116, Val Loss: 0.000105
+Epoch 20: Train Loss: 0.000071, Val Loss: 0.000020
+Epoch 21: Train Loss: 0.000117, Val Loss: 0.000099
+Epoch 22: Train Loss: 0.000086, Val Loss: 0.000035
+Epoch 23: Train Loss: 0.000136, Val Loss: 0.000017
+Epoch 24: Train Loss: 0.000149, Val Loss: 0.000095
+Epoch 25: Train Loss: 0.000163, Val Loss: 0.000112
+Epoch 26: Train Loss: 0.000228, Val Loss: 0.000059
+Epoch 27: Train Loss: 0.000080, Val Loss: 0.000033
+Epoch 28: Train Loss: 0.000094, Val Loss: 0.000016
+Early stopping at epoch 28
+Repetition 2 completed: Total time = 769.73s, Time/sample = 0.006854s
+
+--- Repetition 3/5 ---
+Epoch 1: Train Loss: 0.076942, Val Loss: 0.000408
+Epoch 2: Train Loss: 0.001001, Val Loss: 0.000261
+Epoch 3: Train Loss: 0.001019, Val Loss: 0.000248
+Epoch 4: Train Loss: 0.000945, Val Loss: 0.000263
+Epoch 5: Train Loss: 0.000898, Val Loss: 0.000152
+Epoch 6: Train Loss: 0.000808, Val Loss: 0.000398
+Epoch 7: Train Loss: 0.000548, Val Loss: 0.000072
+Epoch 8: Train Loss: 0.000461, Val Loss: 0.000051
+Epoch 9: Train Loss: 0.000323, Val Loss: 0.000086
+Epoch 10: Train Loss: 0.000207, Val Loss: 0.000068
+Epoch 11: Train Loss: 0.000145, Val Loss: 0.000272
+Epoch 12: Train Loss: 0.000118, Val Loss: 0.000023
+Epoch 13: Train Loss: 0.000131, Val Loss: 0.000560
+Epoch 14: Train Loss: 0.000120, Val Loss: 0.000022
+Epoch 15: Train Loss: 0.000116, Val Loss: 0.000063
+Epoch 16: Train Loss: 0.000152, Val Loss: 0.000017
+Epoch 17: Train Loss: 0.000151, Val Loss: 0.000028
+Epoch 18: Train Loss: 0.000118, Val Loss: 0.000292
+Epoch 19: Train Loss: 0.000101, Val Loss: 0.000013
+Epoch 20: Train Loss: 0.000076, Val Loss: 0.000060
+Epoch 21: Train Loss: 0.000120, Val Loss: 0.000038
+Epoch 22: Train Loss: 0.000132, Val Loss: 0.000016
+Epoch 23: Train Loss: 0.000160, Val Loss: 0.000097
+Epoch 24: Train Loss: 0.000101, Val Loss: 0.000113
+Epoch 25: Train Loss: 0.000080, Val Loss: 0.000073
+Epoch 26: Train Loss: 0.000142, Val Loss: 0.000178
+Epoch 27: Train Loss: 0.000128, Val Loss: 0.000016
+Epoch 28: Train Loss: 0.000140, Val Loss: 0.000055
+Epoch 29: Train Loss: 0.000071, Val Loss: 0.000282
+Early stopping at epoch 29
+Repetition 3 completed: Total time = 803.25s, Time/sample = 0.006906s
+
+--- Repetition 4/5 ---
+Epoch 1: Train Loss: 0.093249, Val Loss: 0.000362
+Epoch 2: Train Loss: 0.000995, Val Loss: 0.000414
+Epoch 3: Train Loss: 0.001040, Val Loss: 0.000240
+Epoch 4: Train Loss: 0.000862, Val Loss: 0.000371
+Epoch 5: Train Loss: 0.000873, Val Loss: 0.000356
+Epoch 6: Train Loss: 0.000827, Val Loss: 0.000283
+Epoch 7: Train Loss: 0.000548, Val Loss: 0.001091
+Epoch 8: Train Loss: 0.000453, Val Loss: 0.000360
+Epoch 9: Train Loss: 0.000311, Val Loss: 0.000042
+Epoch 10: Train Loss: 0.000170, Val Loss: 0.000112
+Epoch 11: Train Loss: 0.000099, Val Loss: 0.000293
+Epoch 12: Train Loss: 0.000096, Val Loss: 0.000020
+Epoch 13: Train Loss: 0.000093, Val Loss: 0.000064
+Epoch 14: Train Loss: 0.000094, Val Loss: 0.000041
+Epoch 15: Train Loss: 0.000158, Val Loss: 0.000156
+Epoch 16: Train Loss: 0.000087, Val Loss: 0.000074
+Epoch 17: Train Loss: 0.000096, Val Loss: 0.000067
+Epoch 18: Train Loss: 0.000130, Val Loss: 0.000183
+Epoch 19: Train Loss: 0.000099, Val Loss: 0.000276
+Epoch 20: Train Loss: 0.000085, Val Loss: 0.000092
+Epoch 21: Train Loss: 0.000189, Val Loss: 0.000072
+Epoch 22: Train Loss: 0.000101, Val Loss: 0.000096
+Early stopping at epoch 22
+Repetition 4 completed: Total time = 604.03s, Time/sample = 0.006845s
+
+--- Repetition 5/5 ---
+Epoch 1: Train Loss: 0.079698, Val Loss: 0.000338
+Epoch 2: Train Loss: 0.001025, Val Loss: 0.000255
+Epoch 3: Train Loss: 0.001030, Val Loss: 0.000787
+Epoch 4: Train Loss: 0.000940, Val Loss: 0.000212
+Epoch 5: Train Loss: 0.000922, Val Loss: 0.000155
+Epoch 6: Train Loss: 0.000715, Val Loss: 0.000353
+Epoch 7: Train Loss: 0.000507, Val Loss: 0.000275
+Epoch 8: Train Loss: 0.000369, Val Loss: 0.000927
+Epoch 9: Train Loss: 0.000263, Val Loss: 0.000086
+Epoch 10: Train Loss: 0.000168, Val Loss: 0.000134
+Epoch 11: Train Loss: 0.000170, Val Loss: 0.000586
+Epoch 12: Train Loss: 0.000121, Val Loss: 0.000035
+Epoch 13: Train Loss: 0.000084, Val Loss: 0.000031
+Epoch 14: Train Loss: 0.000083, Val Loss: 0.000090
+Epoch 15: Train Loss: 0.000104, Val Loss: 0.000012
+Epoch 16: Train Loss: 0.000073, Val Loss: 0.000019
+Epoch 17: Train Loss: 0.000087, Val Loss: 0.000046
+Epoch 18: Train Loss: 0.000075, Val Loss: 0.000143
+Epoch 19: Train Loss: 0.000115, Val Loss: 0.000042
+Epoch 20: Train Loss: 0.000148, Val Loss: 0.000017
+Epoch 21: Train Loss: 0.000090, Val Loss: 0.000051
+Epoch 22: Train Loss: 0.000143, Val Loss: 0.000016
+Epoch 23: Train Loss: 0.000079, Val Loss: 0.000028
+Epoch 24: Train Loss: 0.000076, Val Loss: 0.000198
+Epoch 25: Train Loss: 0.000152, Val Loss: 0.000017
+Early stopping at epoch 25
+Repetition 5 completed: Total time = 524.86s, Time/sample = 0.005234s
+
+====== Benchmark Summary ======
+Run 1: Total = 1275.67s, Per Sample = 0.006767s
+Run 2: Total = 769.73s, Per Sample = 0.006854s
+Run 3: Total = 803.25s, Per Sample = 0.006906s
+Run 4: Total = 604.03s, Per Sample = 0.006845s
+Run 5: Total = 524.86s, Per Sample = 0.005234s
+
+Average Total Time: 795.51s
+Average Time per Sample: 0.006521s

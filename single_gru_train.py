@@ -240,12 +240,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
     print("Training completed!")
 
 # train
-train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
+#train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
 
 # %% load the model from the saved path
-model = init_model().to(device)
-model.load_state_dict(torch.load(save_path))
-model.eval()
+#model = init_model().to(device)
+#model.load_state_dict(torch.load(save_path))
+#model.eval()
 
 # %%
 def evaluate_model(model, test_loader, scaler, device='cuda'):
@@ -315,75 +315,81 @@ def evaluate_model(model, test_loader, scaler, device='cuda'):
     return rmse, mae, r2, l2_error
 
 # %%
-print(evaluate_model(model, test_loader, scaler_target, device=device))
+#print(evaluate_model(model, test_loader, scaler_target, device=device))
 
+def benchmark_training(model_fn, train_loader, val_loader, criterion, optimizer_fn, num_epochs=1000, patience=10, device='cuda', repeats=5):
+    import time
 
-def evaluate_noisy_model(model, test_loader, scaler, device='cuda'):
-    model.eval()
-    all_preds, all_targets = [], []
-    
-    with torch.no_grad():
-        for branch_batch, trunk_batch, target_batch in test_loader:
-            branch_batch, trunk_batch, target_batch = (
-                branch_batch.to(device),
-                trunk_batch.to(device),
-                target_batch.to(device),
-            )
-            output = model(branch_batch, trunk_batch)
-            all_preds.append(output.cpu().numpy())
-            all_targets.append(target_batch.cpu().numpy())
+    all_times = []
 
-    # Convert lists to numpy arrays
-    all_preds = np.concatenate(all_preds, axis=0)
-    all_targets = np.concatenate(all_targets, axis=0)
+    for repeat in range(repeats):
+        print(f"\n--- Repetition {repeat+1}/{repeats} ---")
+        model = model_fn().to(device)
+        optimizer = optimizer_fn(model)
 
-    # Reshape to 2D (n_samples, n_features) for inverse scaling
-    all_preds = all_preds.reshape(all_preds.shape[0], -1)
-    all_targets = all_targets.reshape(all_targets.shape[0], -1)
+        best_val_loss = np.inf
+        counter = 0
+        total_samples = len(train_loader.dataset)
 
-    print("All predictions shape after reshape:", all_preds.shape)
-    print("All targets shape after reshape:", all_targets.shape)
+        start_time = time.time()
 
-    # Inverse scaling
-    all_preds = scaler.inverse_transform(all_preds)
-    all_targets = scaler.inverse_transform(all_targets)
-    
-    # save the predictions and targets to a file together
-    save_path = os.path.join(save_dir, f'array/noise_gru_window_{window_size}_preds_targets_1.npy')
-    np.save(save_path, np.stack((all_preds, all_targets), axis=1))
-    print(f"Predictions and targets saved to {save_path}")
-    
-    # Compute metrics for each sample
-    rmse, mae, r2, l2_error = [], [], [], []
-    for i in range(all_preds.shape[0]):
-        rmse.append(np.sqrt(np.mean((all_preds[i] - all_targets[i]) ** 2)))
-        mae.append(np.mean(np.abs(all_preds[i] - all_targets[i])))
-        r2.append(1 - np.sum((all_preds[i] - all_targets[i]) ** 2) / np.sum((all_targets[i] - np.mean(all_targets[i])) ** 2))
-        l2_error.append(np.linalg.norm(all_preds[i] - all_targets[i], 2))
+        for epoch in range(num_epochs):
+            model.train()
+            train_loss = 0.0
+            for inputs, trunk, targets in train_loader:
+                inputs, trunk, targets = inputs.to(device), trunk.to(device), targets.to(device)
+                optimizer.zero_grad()
+                outputs = model(inputs, trunk)
+                loss = criterion(outputs, targets)
+                loss.backward()
+                optimizer.step()
+                train_loss += loss.item()
+            train_loss /= len(train_loader)
 
-    # Convert lists to numpy arrays
-    rmse = np.array(rmse)
-    mae = np.array(mae)
-    r2 = np.array(r2)
-    l2_error = np.array(l2_error)
-    
-    # save the results to a file
-    results = np.stack((rmse, mae, r2, l2_error), axis=1)
-    save_path = os.path.join(save_dir, f'array/noise_gru_window_{window_size}_results_1.npy')
-    np.save(save_path, results)
-    print(f"Results saved to {save_path}")
-    
-    # Compute average metrics
-    rmse = np.mean(rmse)
-    mae = np.mean(mae)
-    r2 = np.mean(r2)
-    l2_error = np.mean(l2_error)
+            model.eval()
+            val_loss = 0.0
+            for inputs, trunk, targets in val_loader:
+                inputs, trunk, targets = inputs.to(device), trunk.to(device), targets.to(device)
+                outputs = model(inputs, trunk)
+                loss = criterion(outputs, targets)
+                val_loss += loss.item()
+            val_loss /= len(val_loader)
 
-    print(f"Final Model Evaluation on Test Set:")
-    print(f"RMSE: {rmse:.4f}, MAE: {mae:.4f}, R²: {r2:.4f}, L2 Error: {l2_error:.4f}")
+            print(f"Epoch {epoch+1}: Train Loss: {train_loss:.6f}, Val Loss: {val_loss:.6f}")
 
-    return rmse, mae, r2, l2_error
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                counter = 0
+            else:
+                counter += 1
+                if counter >= patience:
+                    print(f"Early stopping at epoch {epoch+1}")
+                    break
 
+        end_time = time.time()
+        total_time = end_time - start_time
+        time_per_sample = total_time / (len(train_loader.dataset) * (epoch + 1))
 
-print('noisy')
-print(evaluate_noisy_model(model, noisy_loader, scaler_target, device=device))
+        print(f"Repetition {repeat+1} completed: Total time = {total_time:.2f}s, Time/sample = {time_per_sample:.6f}s")
+        all_times.append((total_time, time_per_sample))
+
+    print("\n====== Benchmark Summary ======")
+    for i, (t, s) in enumerate(all_times):
+        print(f"Run {i+1}: Total = {t:.2f}s, Per Sample = {s:.6f}s")
+
+    avg_total = np.mean([t[0] for t in all_times])
+    avg_sample = np.mean([t[1] for t in all_times])
+    print(f"\nAverage Total Time: {avg_total:.2f}s")
+    print(f"Average Time per Sample: {avg_sample:.6f}s")
+
+benchmark_training(
+    model_fn=init_model,
+    train_loader=train_loader,
+    val_loader=val_loader,
+    criterion=nn.MSELoss(),
+    optimizer_fn=lambda model: optim.Adam(model.parameters(), lr=1e-3),
+    num_epochs=1000,
+    patience=10,
+    device=device,
+    repeats=5
+)

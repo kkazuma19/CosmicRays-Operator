@@ -1,13 +1,13 @@
 #!/bin/bash
 #SBATCH --job-name=multi_lstm_gru
-#SBATCH --partition=gpuA100x4,gpuA40x4
+#SBATCH --partition=gpuA100x4
 #SBATCH --mem=128G
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1  # could be 1 for py-torch
 #SBATCH --cpus-per-task=16   # spread out to use 1 core per numa, set to 64 if tasks is 1
 #SBATCH --gpus-per-node=4
 #SBATCH --account=bcnx-delta-gpu
-#SBATCH -t 6:00:00
+#SBATCH -t 24:00:00
 
 # Load necessary modules
 conda deactivate

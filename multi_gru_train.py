@@ -256,12 +256,12 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, num_epoch
 
 
 # run
-train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
+#train_model(model, train_loader, val_loader, criterion, optimizer, num_epochs, patience, save_path)
 # %%
 # %% load the model from the saved path
-model = init_model().to(device)
-model.load_state_dict(torch.load(save_path))
-model.eval()
+#model = init_model().to(device)
+#model.load_state_dict(torch.load(save_path))
+#model.eval()
 # %%
 def evaluate_model(model, test_loader, scaler, save_dir, window_size, device='cuda'):
     model.eval()
@@ -333,6 +333,92 @@ def evaluate_model(model, test_loader, scaler, save_dir, window_size, device='cu
     return rmse, mae, r2, l2_error
 
 # %%
-print(evaluate_model(model, test_loader, scaler_target, save_dir, window_size, device=device))
+#print(evaluate_model(model, test_loader, scaler_target, save_dir, window_size, device=device))
 
 
+def benchmark_training_mionet(model_fn, train_loader, val_loader, criterion, optimizer_fn, num_epochs=1000, patience=10, device='cuda', repeats=5):
+    import time
+
+    all_times = []
+
+    for repeat in range(repeats):
+        print(f"\n--- Repetition {repeat+1}/{repeats} ---")
+        model = model_fn().to(device)
+        optimizer = optimizer_fn(model)
+
+        best_val_loss = float('inf')
+        counter = 0
+        total_samples = len(train_loader.dataset)
+
+        start_time = time.time()
+
+        for epoch in range(num_epochs):
+            model.train()
+            running_loss = 0.0
+
+            for branch_batch, trunk_batch, target_batch in train_loader:
+                branch_batch = {k: v.to(device) for k, v in branch_batch.items()}
+                trunk_batch = trunk_batch.to(device)
+                target_batch = target_batch.to(device)
+
+                optimizer.zero_grad()
+                outputs = model(branch_batch, trunk_batch)
+                loss = criterion(outputs, target_batch)
+                loss.backward()
+                optimizer.step()
+                running_loss += loss.item()
+
+            train_loss = running_loss / len(train_loader)
+
+            # validation
+            model.eval()
+            val_loss = 0.0
+            with torch.no_grad():
+                for branch_batch, trunk_batch, target_batch in val_loader:
+                    branch_batch = {k: v.to(device) for k, v in branch_batch.items()}
+                    trunk_batch = trunk_batch.to(device)
+                    target_batch = target_batch.to(device)
+
+                    outputs = model(branch_batch, trunk_batch)
+                    loss = criterion(outputs, target_batch)
+                    val_loss += loss.item()
+
+            val_loss /= len(val_loader)
+            print(f"Epoch {epoch+1}: Train Loss = {train_loss:.6f}, Val Loss = {val_loss:.6f}")
+
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                counter = 0
+            else:
+                counter += 1
+                if counter >= patience:
+                    print(f"Early stopping at epoch {epoch+1}")
+                    break
+
+        end_time = time.time()
+        total_time = end_time - start_time
+        time_per_sample = total_time / (total_samples * (epoch + 1))
+
+        print(f"Repetition {repeat+1} finished: Total Time = {total_time:.2f}s, Time/sample = {time_per_sample:.6f}s")
+        all_times.append((total_time, time_per_sample))
+
+    print("\n====== MIONet Training Time Benchmark ======")
+    for i, (t, s) in enumerate(all_times):
+        print(f"Run {i+1}: Total = {t:.2f}s, Per Sample = {s:.6f}s")
+
+    avg_total = np.mean([t for t, _ in all_times])
+    avg_sample = np.mean([s for _, s in all_times])
+    print(f"\nAverage Total Time: {avg_total:.2f}s")
+    print(f"Average Time per Sample: {avg_sample:.6f}s")
+
+benchmark_training_mionet(
+    model_fn=init_model,
+    train_loader=train_loader,
+    val_loader=val_loader,
+    criterion=nn.MSELoss(),
+    optimizer_fn=lambda model: optim.Adam(model.parameters(), lr=1e-3),
+    num_epochs=1000,
+    patience=10,
+    device=device,
+    repeats=5
+)

@@ -1,6 +1,0 @@
-usage: single_fnn_train.py [-h] --window_size WINDOW_SIZE
-single_fnn_train.py: error: argument --window_size: expected one argument
-Using device: cuda
-Train input shape: (4017, 12)
-Validation input shape: (4018, 12)
-Test input shape: (365, 12)
