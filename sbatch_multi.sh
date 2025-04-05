@@ -22,7 +22,7 @@ conda info --envs
 
 
 # Define different window sizes
-WINDOW_SIZES=(7 30 60 90)
+WINDOW_SIZES=(30)
 
 # Launch jobs in parallel for different window sizes
 for i in {0..3}; do
@@ -45,7 +45,7 @@ for i in {0..3}; do
     echo "Starting job for window_size=${WINDOW_SIZE} on GPU ${GPU_ID}"
     
     #CUDA_VISIBLE_DEVICES=$GPU_ID python single_lstm_train.py --window_size $WINDOW_SIZE > logs/single_lstm_window_${WINDOW_SIZE}.log 2>&1 &
-    CUDA_VISIBLE_DEVICES=$GPU_ID python multi_lstm_train.py --window_size $WINDOW_SIZE > logs/multi_lstm_window_${WINDOW_SIZE}.log 2>&1 &
+    #CUDA_VISIBLE_DEVICES=$GPU_ID python multi_lstm_train.py --window_size $WINDOW_SIZE > logs/multi_lstm_window_${WINDOW_SIZE}.log 2>&1 &
 done
 
 
