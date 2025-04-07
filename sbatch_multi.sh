@@ -22,7 +22,7 @@ conda info --envs
 
 
 # Define different window sizes
-WINDOW_SIZES=(30)
+WINDOW_SIZES=(7 30 60 90)
 
 # Launch jobs in parallel for different window sizes
 for i in {0..3}; do
