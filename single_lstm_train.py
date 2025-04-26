@@ -75,14 +75,6 @@ train_input, train_target, val_input, val_target, test_input, test_target = trai
 # input data normalization (min-max scaling)
 scaler = MinMaxScaler()
 
-# Add Gaussian noise directly to the test input
-noise_level = 0.05  # Set noise level (e.g., 10% noise)
-noisy_test_input = test_input * (1 +  np.random.normal(0, noise_level, test_input.shape) )
-
-train_input = scaler.fit_transform(train_input)
-val_input = scaler.transform(val_input)
-test_input = scaler.transform(test_input)
-noisy_test_input = scaler.transform(noisy_test_input)  # Normalizing noisy input using the same scaler
 
 # target data normalization (min-max scaling)
 scaler_target = MinMaxScaler()
@@ -108,9 +100,6 @@ train_input_seq, train_target_seq = create_sliding_windows(train_input, train_ta
 
 # Generate sequences for the testing set
 test_input_seq, test_target_seq = create_sliding_windows(test_input, test_target, window_size)
-
-# Generate sequences for the noisy testing set
-noisy_test_input_seq, test_target_seq = create_sliding_windows(noisy_test_input, test_target, window_size)
 
 # generate sequences for the validation set
 val_input_seq, val_target_seq = create_sliding_windows(val_input, val_target, window_size)
@@ -141,10 +130,6 @@ val_loader = torch.utils.data.DataLoader(val_dataset, batch_size=batch_size, shu
 
 test_dataset = SequentialDeepONetDataset(test_input_seq, trunk, test_target_seq)
 test_loader = torch.utils.data.DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-# noizy
-noisy_dataset = SequentialDeepONetDataset(noisy_test_input_seq, trunk, test_target_seq)
-noisy_loader = torch.utils.data.DataLoader(noisy_dataset, batch_size=batch_size, shuffle=False)
 
 
 # %%
