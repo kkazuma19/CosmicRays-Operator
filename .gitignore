@@ -2,3 +2,4 @@
 *.pth
 *.npz
 *.gif
+*.pyc
