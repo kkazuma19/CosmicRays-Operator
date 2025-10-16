@@ -359,3 +359,15 @@ def plot_global_field_box(
         plt.show()
     if close:
         plt.close(fig)
+
+
+# Atlantic-centered box (0°)
+# import cmocean
+# cmap_seq = cmocean.cm.thermal
+# plot_global_field_box(
+#     lon_grid, lat_grid, pred_img, i=10,
+#     title="Prediction (orig units)",
+#     units_label="Effective Dose Rate (μSv/h)",
+#     cmap=cmap_seq, central_longitude=0,
+#     savepath="analysis/zero-shot/pred_box_0.png"
+# )
