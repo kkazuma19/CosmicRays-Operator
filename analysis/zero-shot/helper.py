@@ -371,3 +371,75 @@ def plot_global_field_box(
 #     cmap=cmap_seq, central_longitude=0,
 #     savepath="analysis/zero-shot/pred_box_0.png"
 # )
+
+
+def load_dose_years(data_dir: str,
+                    start_year: int = 2001,
+                    end_year: int = 2023,
+                    pattern: str = "dose_{year}_0m.npy",
+                    concat_axis: int = 0,
+                    allow_missing: bool = True,
+                    verbose: bool = True):
+    """
+    Load yearly dose .npy files and concatenate them.
+
+    Parameters
+    ----------
+    data_dir : str
+        Directory containing files.
+    start_year, end_year : int
+        Inclusive year range to load.
+    pattern : str
+        Filename pattern with '{year}' placeholder.
+    concat_axis : int
+        Axis along which to concatenate (default 0 -> time axis).
+    allow_missing : bool
+        If True, skip missing files and continue; if False, raise FileNotFoundError.
+    verbose : bool
+        Print progress.
+
+    Returns
+    -------
+    combined : np.ndarray
+        Concatenated array (time, lat, lon).
+    years_loaded : list[int]
+        Years that were successfully loaded (in order).
+    """
+    import os
+    import numpy as np
+
+    arrays = []
+    years_loaded = []
+    for y in range(start_year, end_year + 1):
+        fname = os.path.join(data_dir, pattern.format(year=y))
+        if not os.path.exists(fname):
+            if allow_missing:
+                if verbose:
+                    print(f"Warning: file missing, skipping: {fname}")
+                continue
+            else:
+                raise FileNotFoundError(f"Missing required file: {fname}")
+        if verbose:
+            print(f"Loading {fname} ...")
+        a = np.load(fname)
+        arrays.append(a)
+        years_loaded.append(y)
+
+    if len(arrays) == 0:
+        raise RuntimeError("No files loaded. Check data_dir and pattern.")
+
+    # basic sanity: ensure shapes match except concat_axis
+    ref_shape = list(arrays[0].shape)
+    for idx, a in enumerate(arrays[1:], start=1):
+        shp = list(a.shape)
+        # allow different size on concat_axis; require others equal
+        for ax, (r, s) in enumerate(zip(ref_shape, shp)):
+            if ax == concat_axis:
+                continue
+            if r != s:
+                raise ValueError(f"Incompatible shape for year {years_loaded[idx]}: {shp} vs {ref_shape}")
+
+    combined = np.concatenate(arrays, axis=concat_axis)
+    if verbose:
+        print(f"Combined shape: {combined.shape} (years: {years_loaded})")
+    return combined, years_loaded
