@@ -1,0 +1,48 @@
+stations:
+  - name: ATHN
+    lat: 37.97
+    lon: 23.78
+
+  - name: JUNG
+    lat: 46.55
+    lon: 7.98
+
+  - name: NEWK
+    lat: 39.68
+    lon: -75.75
+
+  - name: KERG
+    lat: -49.35
+    lon: 70.25
+
+  - name: OULU
+    lat: 65.05
+    lon: 25.47
+
+  - name: APTY
+    lat: 67.57
+    lon: 33.4
+
+  - name: FSMT
+    lat: 60.02
+    lon: -111.93
+
+  - name: INVK
+    lat: 68.36
+    lon: -133.72
+
+  - name: NAIN
+    lat: 56.55
+    lon: -61.68
+
+  - name: THUL
+    lat: 76.5
+    lon: -68.7
+
+  - name: SOPO
+    lat: -90.0
+    lon: 0.0   # South Pole → arbitrary 0°E
+
+  - name: TERA
+    lat: -66.65
+    lon: 140.0

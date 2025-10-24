@@ -8,6 +8,7 @@ from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy.util import add_cyclic_point
 import cmocean
 from s_deeponet import SequentialDeepONet
+from skimage.metrics import structural_similarity as ssim
 
 #print("Using helper from analysis/zero-shot/helper.py")
 
@@ -41,6 +42,44 @@ def train_val_test_split(input_data, target):
     return train_input, train_target, val_input, val_target, test_input, test_target
 
 
+def simulate_sensor_failure(input_seq, replace_value, sensor_indices):
+    """
+    Replace specified sensor channels with a scalar or per-sensor value.
+    Works with numpy arrays or torch.Tensors. Returns same type as input.
+    """
+    import numpy as np
+    import torch
+
+    is_tensor = torch.is_tensor(input_seq)
+
+    if is_tensor:
+        out = input_seq.clone()
+    else:
+        out = input_seq.copy()
+
+    # helper to get value for a given sensor index
+    def _val_for(idx):
+        if np.isscalar(replace_value):
+            return replace_value
+        try:
+            return replace_value[idx]
+        except Exception:
+            return replace_value  # fallback
+
+    for si in sensor_indices:
+        v = _val_for(si)
+        if is_tensor:
+            # ensure v is a tensor on the same device/dtype
+            if not torch.is_tensor(v):
+                v = torch.as_tensor(v, dtype=out.dtype, device=out.device)
+            out[:, :, si] = v
+        else:
+            out[:, :, si] = v
+
+    return out
+
+
+
 def init_model():
     ''' Initialize the model architecture '''
     dim = 128
@@ -70,6 +109,91 @@ def load_model_experiment(model_path):
     
     model.eval()
     return model
+
+
+def fit(model, data_loader, device, scaler_target):
+    all_outputs = []
+    all_targets = []
+
+    model.eval()
+    with torch.no_grad():
+        for branch_batch, trunk_batch, target_batch in data_loader:
+            branch_batch, trunk_batch, target_batch = (
+                branch_batch.to(device),
+                trunk_batch.to(device),
+                target_batch.to(device),
+            )
+            output = model(branch_batch, trunk_batch)
+            
+            all_outputs.append(output.cpu())
+            all_targets.append(target_batch.cpu())
+
+    # ...existing code...
+    # After loop:
+    outputs = torch.cat(all_outputs, dim=0)  # [N_test, ...]
+    targets = torch.cat(all_targets, dim=0)  # [N_test, ...]
+
+    # move to numpy
+    outputs = outputs.cpu().numpy()
+    targets = targets.cpu().numpy()
+
+    # flatten to 2D (n_samples, n_features) for scaler
+    out_shape = outputs.shape
+    tgt_shape = targets.shape
+    outputs_flat = outputs.reshape(outputs.shape[0], -1)
+    targets_flat = targets.reshape(targets.shape[0], -1)
+
+    # inverse scale
+    outputs_flat = scaler_target.inverse_transform(outputs_flat)
+    targets_flat = scaler_target.inverse_transform(targets_flat)
+
+    # restore original shapes
+    outputs = outputs_flat.reshape(out_shape)
+    targets = targets_flat.reshape(tgt_shape)
+    # ...existing code...
+
+    
+    return outputs, targets
+
+
+def compute_metrics_region(pred_img, targ_img, lon_grid, lat_grid, region_extent):
+    """
+    Compute rel-L2 and SSIM restricted to a spatial subset.
+    region_extent = [lon_min, lon_max, lat_min, lat_max]
+    pred_img, targ_img: arrays of shape (N, H, W)
+    lon_grid, lat_grid: (H, W)
+    """
+    lon_min, lon_max, lat_min, lat_max = region_extent
+
+    # Mask to select region
+    mask_lat = (lat_grid[:, 0] >= lat_min) & (lat_grid[:, 0] <= lat_max)
+    mask_lon = (lon_grid[0, :] >= lon_min) & (lon_grid[0, :] <= lon_max)
+
+    # Subset fields
+    pred_sub = pred_img[:, mask_lat, :][:, :, mask_lon]
+    targ_sub = targ_img[:, mask_lat, :][:, :, mask_lon]
+
+    # Flatten spatial dims
+    N = pred_sub.shape[0]
+    eps = 1e-12
+    pf = pred_sub.reshape(N, -1)
+    tf = targ_sub.reshape(N, -1)
+
+    # --- Relative L2 (%) ---
+    rel_l2_pct = 100.0 * np.linalg.norm(pf - tf, axis=1) / (np.linalg.norm(tf, axis=1) + eps)
+
+    # --- SSIM ---
+    ssim_scores = np.empty(N, dtype=float)
+    for i in range(N):
+        dr = float(targ_sub[i].max() - targ_sub[i].min()) or 1.0
+        ssim_scores[i] = ssim(targ_sub[i], pred_sub[i], data_range=dr)
+
+    print(f"Region {region_extent}")
+    print("Mean rel-L2 (%):", rel_l2_pct.mean())
+    print("Mean SSIM:", ssim_scores.mean())
+    
+    return rel_l2_pct, ssim_scores
+
 
 
 def extract_region_from_npy(
@@ -173,194 +297,6 @@ def _edges_from_centers(centers):
     edges[-1] = centers[-1] + 0.5 * (centers[-1] - centers[-2])
     return edges
 
-def plot_global_field_cartopy(
-    lon_grid, lat_grid, field, i=0, *,
-    title=None, units_label="value",
-    cmap="viridis", vmin=None, vmax=None,
-    projection="Robinson", coastline=True, borders=True,
-    use_pcolormesh=True, gaussian_filter=False,
-    savepath=None, dpi=300, close=True
-):
-    """
-    Plot a single timestep from a (N,H,W) field on a global map with Cartopy.
-
-    Args:
-        lon_grid, lat_grid: (H,W) arrays of lon/lat centers (from convert2dim)
-        field: (N,H,W) data array
-        i: timestep index to plot
-        title: plot title
-        units_label: colorbar label
-        cmap: matplotlib colormap name
-        vmin, vmax: color limits
-        projection: 'Robinson' or 'PlateCarree'
-        coastline, borders: draw coast/borders
-        use_pcolormesh: True (recommended) or False to use imshow
-        gaussian_filter: (not applied; placeholder if you later smooth)
-        savepath: if given, save to this path; else just show
-        dpi: figure DPI for saving
-        close: if True, closes the figure after save/show
-    """
-    # Validate shapes
-    H, W = lon_grid.shape
-    assert lat_grid.shape == (H, W), "lat_grid shape mismatch"
-    assert field.ndim == 3 and field.shape[1:] == (H, W), "field must be (N,H,W)"
-    assert 0 <= i < field.shape[0], "timestep index out of range"
-
-    # 1D lon/lat centers from the 2D grids
-    lon_centers = lon_grid[0, :]
-    lat_centers = lat_grid[:, 0]
-
-    # Select the map projection
-    proj_map = ccrs.Robinson() if projection.lower() == "robinson" else ccrs.PlateCarree()
-    proj_data = ccrs.PlateCarree()
-
-    # Data slice
-    Z = np.asarray(field[i], dtype=float)
-
-    fig = plt.figure(figsize=(12, 6))
-    ax = plt.axes(projection=proj_map)
-    ax.set_global()
-
-    if coastline:
-        ax.add_feature(cfeature.LAND, facecolor="lightgray", zorder=0)
-        ax.add_feature(cfeature.OCEAN, facecolor="white", zorder=0)
-        ax.coastlines(lw=0.7)
-    if borders:
-        ax.add_feature(cfeature.BORDERS, lw=0.4)
-
-    # Gridlines (no labels for cleaner look; toggle if needed)
-    ax.gridlines(draw_labels=False, linewidth=0.3, color="k", alpha=0.2, linestyle="--")
-
-    if use_pcolormesh:
-        # Safer geospatial path: build edges, add a cyclic column to avoid the dateline seam
-        Z_cyc, lon_cyc = add_cyclic_point(Z, coord=lon_centers)
-        lon_edges = _edges_from_centers(lon_cyc)
-        lat_edges = _edges_from_centers(lat_centers)
-        Lon, Lat = np.meshgrid(lon_edges, lat_edges)
-        im = ax.pcolormesh(Lon, Lat, Z_cyc, transform=proj_data,
-                           cmap=cmap, vmin=vmin, vmax=vmax, shading="auto")
-    else:
-        # Fast path with imshow (assumes regular spacing); set extent explicitly
-        Z_cyc, lon_cyc = add_cyclic_point(Z, coord=lon_centers)
-        lon_min, lon_max = float(lon_cyc.min()), float(lon_cyc.max())
-        lat_min, lat_max = float(lat_centers.min()), float(lat_centers.max())
-        im = ax.imshow(Z_cyc, origin="lower",
-                       extent=[lon_min, lon_max, lat_min, lat_max],
-                       transform=proj_data, cmap=cmap, vmin=vmin, vmax=vmax,
-                       interpolation="nearest")
-
-    cb = plt.colorbar(im, ax=ax, orientation="horizontal", pad=0.04, fraction=0.05)
-    cb.set_label(units_label)
-    if title:
-        ax.set_title(title)
-
-    plt.tight_layout()
-    if savepath:
-        plt.savefig(savepath, dpi=dpi, bbox_inches="tight")
-    else:
-        plt.show()
-    if close:
-        plt.close(fig)
-
-def plot_global_field_box(
-    lon_grid, lat_grid, field, i=0, *,
-    title=None, units_label="value",
-    cmap="viridis", vmin=None, vmax=None,
-    central_longitude=0,
-    show_coast=True, show_borders=True,
-    show_ticks=True, tick_step=(60, 30),
-    use_pcolormesh=True,
-    savepath=None, dpi=300, close=True
-):
-    """
-    Plate Carrée 'box' map plotter for a single timestep from (N,H,W).
-
-    lon_grid, lat_grid: (H,W)
-    field: (N,H,W)
-    i: timestep index
-    """
-    H, W = lon_grid.shape
-    assert field.ndim == 3 and field.shape[1:] == (H, W)
-    assert 0 <= i < field.shape[0]
-
-    lon_centers = lon_grid[0, :]
-    lat_centers = lat_grid[:, 0]
-
-    proj_map  = ccrs.PlateCarree(central_longitude=central_longitude)
-    proj_data = ccrs.PlateCarree()
-
-    Z = np.asarray(field[i], dtype=float)
-
-    fig = plt.figure(figsize=(12, 6))
-    ax = plt.axes(projection=proj_map)
-
-    # Base map
-    if show_coast:
-        ax.add_feature(cfeature.LAND, facecolor="lightgray", zorder=0)
-        ax.add_feature(cfeature.OCEAN, facecolor="white", zorder=0)
-        ax.coastlines(lw=0.7)
-    if show_borders:
-        ax.add_feature(cfeature.BORDERS, lw=0.4)
-
-    # Plot data (handle wrap seam)
-    if use_pcolormesh:
-        Z_cyc, lon_cyc = add_cyclic_point(Z, coord=lon_centers)
-        lon_edges = _edges_from_centers(lon_cyc)
-        lat_edges = _edges_from_centers(lat_centers)
-        Lon, Lat = np.meshgrid(lon_edges, lat_edges)
-        im = ax.pcolormesh(Lon, Lat, Z_cyc, transform=proj_data,
-                           cmap=cmap, vmin=vmin, vmax=vmax, shading="auto")
-        ax.set_extent([lon_centers.min(), lon_centers.max(),
-                       lat_centers.min(), lat_centers.max()],
-                      crs=proj_data)
-    else:
-        Z_cyc, lon_cyc = add_cyclic_point(Z, coord=lon_centers)
-        im = ax.imshow(Z_cyc, origin="lower",
-                       extent=[lon_cyc.min(), lon_cyc.max(),
-                               lat_centers.min(), lat_centers.max()],
-                       transform=proj_data,
-                       cmap=cmap, vmin=vmin, vmax=vmax, interpolation="nearest")
-
-    # Gridlines and ticks
-    if show_ticks:
-        lon_step, lat_step = tick_step
-        xticks = np.arange(-180, 181, lon_step)
-        yticks = np.arange(-90,   91,  lat_step)
-        ax.set_xticks(xticks, crs=proj_data)
-        ax.set_yticks(yticks, crs=proj_data)
-        lon_formatter = LongitudeFormatter(number_format='.0f')
-        lat_formatter = LatitudeFormatter(number_format='.0f')
-        ax.xaxis.set_major_formatter(lon_formatter)
-        ax.yaxis.set_major_formatter(lat_formatter)
-        ax.gridlines(draw_labels=False, linewidth=0.4, color="k",
-                     alpha=0.2, linestyle="--")
-
-    if title:
-        ax.set_title(title, pad=8)
-
-    # ---- AUTO-WIDTH COLORBAR ----
-    fig.canvas.draw()
-    pos = ax.get_position()
-    cbar_ax = fig.add_axes([
-        pos.x0,                # align with left edge of map
-        pos.y0 - 0.075,         # below map
-        pos.width,             # match width dynamically
-        0.03                   # fixed height
-    ])
-    cb = plt.colorbar(im, cax=cbar_ax, orientation="horizontal")
-    cb.set_label(units_label)
-
-    # Adjust layout safely (no tight_layout warnings)
-    fig.subplots_adjust(bottom=0.12, top=0.92)
-
-    if savepath:
-        plt.savefig(savepath, dpi=dpi, bbox_inches="tight")
-    else:
-        plt.show()
-    if close:
-        plt.close(fig)
-
-
 # Atlantic-centered box (0°)
 # import cmocean
 # cmap_seq = cmocean.cm.thermal
@@ -443,3 +379,114 @@ def load_dose_years(data_dir: str,
     if verbose:
         print(f"Combined shape: {combined.shape} (years: {years_loaded})")
     return combined, years_loaded
+
+
+import numpy as np
+import matplotlib.pyplot as plt
+import cartopy.crs as ccrs
+import cartopy.feature as cfeature
+
+def plot_field_region(
+    lon_grid, lat_grid, field, i=0, *,
+    title=None, units_label="value",
+    cmap="viridis", vmin=None, vmax=None,
+    region_extent=None,     # [lon_min, lon_max, lat_min, lat_max]
+    show_coast=True, show_borders=True,
+    tick_step=(10, 5),
+    add_contour=False, contour_levels=8, contour_color="k", contour_alpha=0.8,
+    mark_equator_meridian=True,
+    savepath=None, dpi=300, close=True
+):
+    """Regional map with *exactly aligned* colorbar under the plot."""
+    assert field.ndim == 3 and 0 <= i < field.shape[0]
+    lon_min, lon_max, lat_min, lat_max = region_extent
+
+    # --- Subset region ---
+    mask_lat = (lat_grid[:, 0] >= lat_min) & (lat_grid[:, 0] <= lat_max)
+    mask_lon = (lon_grid[0, :] >= lon_min) & (lon_grid[0, :] <= lon_max)
+    sub_field = field[i][np.ix_(mask_lat, mask_lon)]
+    sub_lon = lon_grid[np.ix_(mask_lat, mask_lon)]
+    sub_lat = lat_grid[np.ix_(mask_lat, mask_lon)]
+
+    # --- Setup ---
+    proj = ccrs.PlateCarree()
+    fig, ax = plt.subplots(figsize=(6, 3), subplot_kw={'projection': proj})
+
+    # --- Base map ---
+    if show_coast:
+        ax.add_feature(cfeature.LAND, facecolor="lightgray", zorder=0)
+        ax.add_feature(cfeature.OCEAN, facecolor="white", zorder=0)
+        ax.coastlines(resolution="50m", lw=0.6)
+    if show_borders:
+        ax.add_feature(cfeature.BORDERS, lw=0.4)
+
+    # --- Main field ---
+    im = ax.pcolormesh(
+        sub_lon, sub_lat, sub_field,
+        transform=proj, cmap=cmap, vmin=vmin, vmax=vmax, shading="auto"
+    )
+
+    # --- Contours ---
+    if add_contour:
+        cs = ax.contour(
+            sub_lon, sub_lat, sub_field,
+            levels=contour_levels, colors=contour_color,
+            linewidths=0.4, alpha=contour_alpha, transform=proj
+        )
+        ax.clabel(cs, fmt="%.3f", fontsize=6, inline=True, inline_spacing=2)
+
+    # --- Set extent ---
+    ax.set_extent([lon_min, lon_max, lat_min, lat_max], crs=proj)
+
+    # --- Manual ticks ---
+    lon_step, lat_step = tick_step
+    xticks = np.arange(lon_min, lon_max + lon_step, lon_step)
+    yticks = np.arange(lat_min, lat_max + lat_step, lat_step)
+    ax.set_xticks(xticks, crs=proj)
+    ax.set_yticks(yticks, crs=proj)
+
+    def fmt_lon(x):
+        return f"{abs(int(x))}°{'W' if x < 0 else 'E' if x > 0 else ''}"
+
+    def fmt_lat(y):
+        return f"{abs(int(y))}°{'S' if y < 0 else 'N' if y > 0 else ''}"
+
+    ax.set_xticklabels([fmt_lon(x) for x in xticks], fontsize=9)
+    ax.set_yticklabels([fmt_lat(y) for y in yticks], fontsize=9)
+    ax.tick_params(length=3, direction="out")
+
+    # --- Optional equator/meridian lines ---
+    if mark_equator_meridian:
+        ax.plot([lon_min, lon_max], [0, 0], transform=proj, color="gray", lw=0.5, ls="--")
+        if lon_min < 0 < lon_max:
+            ax.plot([0, 0], [lat_min, lat_max], transform=proj, color="gray", lw=0.5, ls="--")
+
+    # --- Title ---
+    if title:
+        ax.set_title(title, fontsize=12, pad=6)
+
+    # ======================================================
+    #  COLORBAR PERFECTLY ALIGNED AFTER DRAW
+    # ======================================================
+    plt.tight_layout()
+    fig.canvas.draw_idle()  # ensure layout is applied
+    renderer = fig.canvas.get_renderer()
+    pos = ax.get_position()  # [x0, y0, width, height] in figure coords
+
+    # exact alignment with map
+    cbar_height = 0.04
+    cbar_bottom = pos.y0 - 0.15  # spacing below map
+    cbar_left = pos.x0
+    cbar_width = pos.width
+
+    cax = fig.add_axes([cbar_left, cbar_bottom, cbar_width, cbar_height])
+    cb = fig.colorbar(im, cax=cax, orientation='horizontal')
+    cb.set_label(units_label, fontsize=10)
+    cb.ax.tick_params(labelsize=8)
+
+    if savepath:
+        plt.savefig(savepath, dpi=dpi, bbox_inches="tight")
+    else:
+        plt.show()
+    if close:
+        plt.close(fig)
