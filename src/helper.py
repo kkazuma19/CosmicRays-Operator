@@ -150,7 +150,6 @@ def fit(model, data_loader, device, scaler_target):
     # restore original shapes
     outputs = outputs_flat.reshape(out_shape)
     targets = targets_flat.reshape(tgt_shape)
-    # ...existing code...
 
     
     return outputs, targets
