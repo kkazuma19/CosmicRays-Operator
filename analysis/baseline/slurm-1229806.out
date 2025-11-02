@@ -1,0 +1,7 @@
+CUDA: True
+Device: NVIDIA GH200 120GB
+===== Starting FNN sweep =====
+[FNN] window=7 → GPU 0
+[FNN] window=30 → GPU 1
+===== FNN sweep finished =====#
+===== ALL TRAINING COMPLETED SUCCESSFULLY =====

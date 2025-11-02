@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gpus-per-node=4
+#SBATCH --gpus-per-node=1
 #SBATCH --account=begc-dtai-gh
 #SBATCH -t 12:00:00
 #SBATCH --output=single_debug.out
@@ -23,8 +23,6 @@ module load python/miniforge3_pytorch/2.5.0
 eval "$(conda shell.bash hook)"
 conda activate /u/kazumak2/.conda/envs/pytorch
 
-mkdir -p logs
-
 python3 - <<EOF
 import torch
 print("CUDA:", torch.cuda.is_available())
@@ -33,20 +31,19 @@ EOF
 
 WINDOW_SIZES=(7 30 60 90)
 
-echo "===== Starting GRU sweep ====="
-for i in {0..3}; do
-    GPU_ID=$i
-    WINDOW_SIZE=${WINDOW_SIZES[$i]}
-    echo "[GRU] window=$WINDOW_SIZE → GPU $GPU_ID"
-    CUDA_VISIBLE_DEVICES=$GPU_ID python -u single_gru_train.py \
-        --window_size $WINDOW_SIZE &> single_branch/logs/gru_w${WINDOW_SIZE}.log &
-done
-wait
-echo "===== GRU sweep finished ====="
-
+# echo "===== Starting GRU sweep ====="
+# for i in {0..3}; do
+#     GPU_ID=$i
+#     WINDOW_SIZE=${WINDOW_SIZES[$i]}
+#     echo "[GRU] window=$WINDOW_SIZE → GPU $GPU_ID"
+#     CUDA_VISIBLE_DEVICES=$GPU_ID python -u single_gru_train.py \
+#         --window_size $WINDOW_SIZE &> single_branch/logs/gru_w${WINDOW_SIZE}.log &
+# done
+# wait
+# echo "===== GRU sweep finished ====="
 
 # echo "===== Starting LSTM sweep ====="
-# for i in {0..3}; do
+# for i in {0..2}; do
 #     GPU_ID=$i
 #     WINDOW_SIZE=${WINDOW_SIZES[$i]}
 #     echo "[LSTM] window=$WINDOW_SIZE → GPU $GPU_ID"
@@ -55,7 +52,8 @@ echo "===== GRU sweep finished ====="
 # done
 # wait
 # echo "===== LSTM sweep finished ====="# 
-# 
+
+python -u single_lstm_train.py --window_size 30 &> single_branch/logs/lstm_w30_debug.log
 
 
 # echo "===== Starting FNN sweep ====="

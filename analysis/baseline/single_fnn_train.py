@@ -33,18 +33,13 @@ print('Using device:', device)
 
 import random
 
-seed = 1234
+seed = 12345
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
 
-#seed = 1
-#random.seed(seed)
-#np.random.seed(seed)
-#torch.manual_seed(seed)
-#torch.cuda.manual_seed_all(seed)
-
+print(f"Random seed set to {seed}")
 
 # %%
 # Load neutron monitoring data
@@ -145,7 +140,7 @@ print(save_path)
 
 num_epochs = 1000
 learning_rate = 1e-3
-patience = 10
+patience = 5
 
 print("Number of epochs:", num_epochs)
 print("Learning rate:", learning_rate)
@@ -192,7 +187,7 @@ def train_model(model, train_loader, val_loader, criterion, optimizer, scheduler
         val_loss /= len(val_loader)
 
         # Scheduler step
-        scheduler.step(val_loss)
+        #scheduler.step(val_loss)
 
         print(
             f"Epoch {epoch+1}/{num_epochs}, "

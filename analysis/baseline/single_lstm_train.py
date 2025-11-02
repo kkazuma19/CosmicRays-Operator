@@ -33,11 +33,13 @@ print('Using device:', device)
 
 import random
 
-seed = 1234
+seed = 123456
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)
 torch.cuda.manual_seed_all(seed)
+
+print(f"Set random seed to {seed}")
 
 # %%
 # Load neutron monitoring data
