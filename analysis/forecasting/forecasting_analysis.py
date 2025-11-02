@@ -67,11 +67,6 @@ def create_windows_forecasting_with_index(input_data, target_data, window_size, 
     )
 
 
-import torch
-import torch.nn as nn
-import torch.optim as optim
-from tqdm import tqdm
-import numpy as np
 
 def train_model(
     model,

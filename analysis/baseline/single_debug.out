@@ -1,0 +1,7 @@
+CUDA: True
+Device: NVIDIA GH200 120GB
+===== Starting GRU sweep =====
+[GRU] window=7 → GPU 0
+[GRU] window=30 → GPU 1
+[GRU] window=60 → GPU 2
+[GRU] window=90 → GPU 3
