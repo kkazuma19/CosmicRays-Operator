@@ -32,7 +32,7 @@ case $CLUSTER_CHOICE in
          --nodes=1 \
          --ntasks-per-node=1 \
          --gpus=1 \
-         --time=08:00:00 \
+         --time=06:00:00 \
          --mem=128g \
          jupyter-notebook --no-browser --port=$MYPORT --ip=0.0.0.0
     ;;

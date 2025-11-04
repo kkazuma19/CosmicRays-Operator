@@ -1,5 +1,8 @@
 *.npy
 *.pth
+*.pt
 *.npz
 *.gif
 *.pyc
+__pycache__/
+*.log
