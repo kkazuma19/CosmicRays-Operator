@@ -33,7 +33,7 @@ print('Using device:', device)
 
 import random
 
-seed = 123456
+seed = 1234567
 random.seed(seed)
 np.random.seed(seed)
 torch.manual_seed(seed)

@@ -53,7 +53,7 @@ WINDOW_SIZES=(7 30 60 90)
 # wait
 # echo "===== LSTM sweep finished ====="# 
 
-python -u single_lstm_train.py --window_size 30 &> single_branch/logs/lstm_w30_debug.log
+python -u single_lstm_train.py --window_size 90 &> single_branch/logs/lstm_w90_debug.log
 
 
 # echo "===== Starting FNN sweep ====="

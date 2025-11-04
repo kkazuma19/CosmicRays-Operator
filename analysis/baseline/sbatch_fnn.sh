@@ -21,8 +21,6 @@ module load python/miniforge3_pytorch/2.5.0
 eval "$(conda shell.bash hook)"
 conda activate /u/kazumak2/.conda/envs/pytorch
 
-mkdir -p logs
-
 python3 - <<EOF
 import torch
 print("CUDA:", torch.cuda.is_available())
