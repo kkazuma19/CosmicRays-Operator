@@ -28,7 +28,7 @@ case $CLUSTER_CHOICE in
   2)
     echo "Launching on Delta cluster..."
     srun --account=bcnx-delta-gpu \
-         --partition=gpuA40x4,gpuA100x4 \
+         --partition=gpuA100x4,gpuH200x8 \
          --nodes=1 \
          --ntasks-per-node=1 \
          --gpus=1 \
