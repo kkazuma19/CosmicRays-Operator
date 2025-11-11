@@ -1,0 +1,13 @@
+cities:
+  - {name: New York,        lat: 40.7128, lon: -74.0060}
+  - {name: San Francisco,   lat: 37.7749, lon: -122.4194}
+  - {name: São Paulo,       lat: -23.5505, lon: -46.6333}
+  - {name: London,          lat: 51.5074, lon: -0.1278}
+  - {name: Helsinki,        lat: 60.1699, lon: 24.9384}
+  - {name: Cairo,           lat: 30.0444, lon: 31.2357}
+  - {name: Johannesburg,    lat: -26.2041, lon: 28.0473}
+  - {name: Riyadh,          lat: 24.7136, lon: 46.6753}
+  - {name: Delhi,           lat: 28.6139, lon: 77.2090}
+  - {name: Tokyo,           lat: 35.6762, lon: 139.6503}
+  - {name: Jakarta,         lat: -6.2088, lon: 106.8456}
+  - {name: Sydney,          lat: -33.8688, lon: 151.2093}

@@ -64,10 +64,14 @@ X_train_scaled = scaler_input.fit_transform(X_train.reshape(-1, X_train.shape[-1
 X_val_scaled   = scaler_input.transform(X_val.reshape(-1, X_val.shape[-1])).reshape(X_val.shape)
 X_test_scaled  = scaler_input.transform(X_test.reshape(-1, X_test.shape[-1])).reshape(X_test.shape)
 
-scaler_target = MinMaxScaler()
-y_train_scaled = scaler_target.fit_transform(y_train)[..., np.newaxis]
-y_val_scaled   = scaler_target.transform(y_val)[..., np.newaxis]
-y_test_scaled  = scaler_target.transform(y_test)[..., np.newaxis]
+# Fit on ALL training pixels (flattened)
+scaler_target_global = MinMaxScaler()
+scaler_target_global.fit(y_train.reshape(-1, 1))
+
+# Transform sets
+y_train_scaled = scaler_target_global.transform(y_train.reshape(-1,1)).reshape(y_train.shape)[..., np.newaxis]
+y_val_scaled   = scaler_target_global.transform(y_val.reshape(-1,1)).reshape(y_val.shape)[..., np.newaxis]
+y_test_scaled  = scaler_target_global.transform(y_test.reshape(-1,1)).reshape(y_test.shape)[..., np.newaxis]
 
 # dataset and dataloader
 # create datasets
@@ -89,8 +93,8 @@ NUM_MODELS = 5  # typical: 3–10
 models = []
 
 for seed in range(NUM_MODELS):
-    torch.manual_seed(seed)
-    np.random.seed(seed)
+    torch.manual_seed(seed + 1234)
+    np.random.seed(seed + 1234)
     
     print(f"Training model {seed+1}/{NUM_MODELS} with seed {seed}")
 
@@ -102,8 +106,7 @@ for seed in range(NUM_MODELS):
         train_loader=train_loader,
         val_loader=val_loader,
         device=device,
-        scaler_target=scaler_target,
-        num_epochs=200,
+        num_epochs=300,
         lr=1e-3,
         weight_decay=1e-3,
         scheduler_step=20,
