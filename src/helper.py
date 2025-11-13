@@ -7,7 +7,7 @@ import cartopy.feature as cfeature
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy.util import add_cyclic_point
 import cmocean
-from s_deeponet import SequentialDeepONet
+from s_deeponet import SequentialDeepONet, SequentialDeepONet_Dropout
 from skimage.metrics import structural_similarity as ssim
 
 #print("Using helper from analysis/zero-shot/helper.py")
@@ -96,6 +96,22 @@ def init_model():
     )
     return model
 
+def init_model_dropout():
+    ''' Initialize the model architecture '''
+    dim = 128
+    model = SequentialDeepONet_Dropout(
+        branch_type='lstm',
+        branch_input_size=12,
+        branch_hidden_size=128,
+        branch_num_layers=4,
+        branch_output_size=dim,
+        trunk_architecture=[2, 128, 128, dim],
+        num_outputs=1,
+        activation_fn=nn.ReLU,
+        dropout=0.2
+    )
+    return model
+
 def init_model_deeponet():
     ''' Initialize the model architecture '''
     dim = 128
@@ -116,6 +132,19 @@ def init_model_deeponet():
 def load_model_experiment(model_path):
     ''' Load model from a given path '''
     model = init_model()
+    model.load_state_dict(torch.load(model_path))
+    
+    # check if correctly loaded
+    if model is None:
+        raise ValueError(f"Failed to load model from {model_path}")
+    print(f"Loaded model from {model_path}")
+    
+    model.eval()
+    return model
+
+def load_model_experiment_dropout(model_path):
+    ''' Load model from a given path '''
+    model = init_model_dropout()
     model.load_state_dict(torch.load(model_path))
     
     # check if correctly loaded

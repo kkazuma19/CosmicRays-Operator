@@ -28,3 +28,33 @@ class FCN(nn.Module):
 
     def forward(self, x):
         return self.network(x)
+
+class FCN_Dropout(nn.Module):
+    """ 
+    Fully Connected Neural Network (FCNN) class with Dropout to dynamically build networks
+    Args:
+    - architecture (list): List of integers where each integer represents the number of neurons in a layer
+    - activation_fn (torch.nn.Module): Activation function to apply after each layer
+    - dropout (float): Dropout rate to apply after each activation
+
+    Example:
+    architecture = [2, 64, 64, 1]
+    activation_fn = nn.ReLU
+    dropout = 0.2
+    fcn = FCN_Dropout(architecture, activation_fn, dropout)
+    """
+    def __init__(self, architecture, activation_fn=nn.ReLU, dropout=0.2):
+        super(FCN_Dropout, self).__init__()
+        layers = []
+        for i in range(len(architecture) - 1):
+            # For the last layer, set bias=False
+            if i == len(architecture) - 2:
+                layers.append(nn.Linear(architecture[i], architecture[i + 1], bias=True))
+            else:
+                layers.append(nn.Linear(architecture[i], architecture[i + 1]))
+                layers.append(activation_fn())
+                layers.append(nn.Dropout(dropout))
+        self.network = nn.Sequential(*layers)
+
+    def forward(self, x):
+        return self.network(x)

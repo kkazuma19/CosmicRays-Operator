@@ -186,35 +186,5 @@ def train_model(
 
     return history
 
-@torch.no_grad()  # or use torch.inference_mode() for speed
-def fit(model, data_loader, device, scaler_target=None, clamp=True):
-    model.eval()
-    outs, tgts = [], []
 
-    for branch_batch, trunk_batch, target_batch in data_loader:
-        branch_batch = branch_batch.to(device, non_blocking=True)
-        trunk_batch  = trunk_batch.to(device,  non_blocking=True)
-        target_batch = target_batch.to(device, non_blocking=True)
 
-        y = model(branch_batch, trunk_batch)           # [B, M] or [B, M, 1]
-        outs.append(y.detach().cpu())                  # <-- detach()
-        tgts.append(target_batch.detach().cpu())       # <-- detach()
-
-    outputs = torch.cat(outs,  dim=0).squeeze(-1).numpy()
-    targets = torch.cat(tgts,  dim=0).squeeze(-1).numpy()
-
-    if scaler_target is not None:
-        # flatten -> inverse scale -> reshape back
-        o_flat = outputs.reshape(-1, 1)
-        t_flat = targets.reshape(-1, 1)
-
-        if clamp:
-            o_flat = np.clip(o_flat, 0.0, 1.0)  # for MinMax-scaled models
-
-        o_flat = scaler_target.inverse_transform(o_flat)
-        t_flat = scaler_target.inverse_transform(t_flat)
-
-        outputs = o_flat.reshape(outputs.shape)
-        targets = t_flat.reshape(targets.shape)
-
-    return outputs, targets
