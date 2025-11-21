@@ -7,7 +7,7 @@ import cartopy.feature as cfeature
 from cartopy.mpl.ticker import LongitudeFormatter, LatitudeFormatter
 from cartopy.util import add_cyclic_point
 import cmocean
-from s_deeponet import SequentialDeepONet
+from s_deeponet import SequentialDeepONet, SequentialDeepONet_Dropout
 from skimage.metrics import structural_similarity as ssim
 
 #print("Using helper from analysis/zero-shot/helper.py")
@@ -96,6 +96,22 @@ def init_model():
     )
     return model
 
+def init_model_dropout():
+    ''' Initialize the model architecture '''
+    dim = 128
+    model = SequentialDeepONet_Dropout(
+        branch_type='lstm',
+        branch_input_size=12,
+        branch_hidden_size=128,
+        branch_num_layers=4,
+        branch_output_size=dim,
+        trunk_architecture=[2, 128, 128, dim],
+        num_outputs=1,
+        activation_fn=nn.ReLU,
+        dropout=0.2
+    )
+    return model
+
 def init_model_deeponet():
     ''' Initialize the model architecture '''
     dim = 128
@@ -126,6 +142,19 @@ def load_model_experiment(model_path):
     model.eval()
     return model
 
+def load_model_experiment_dropout(model_path):
+    ''' Load model from a given path '''
+    model = init_model_dropout()
+    model.load_state_dict(torch.load(model_path))
+    
+    # check if correctly loaded
+    if model is None:
+        raise ValueError(f"Failed to load model from {model_path}")
+    print(f"Loaded model from {model_path}")
+    
+    model.eval()
+    return model
+
 def load_model_experiment_deeponet(model_path):
     ''' Load model from a given path '''
     model = init_model_deeponet()
@@ -140,47 +169,109 @@ def load_model_experiment_deeponet(model_path):
     return model
 
 
-def fit(model, data_loader, device, scaler_target):
+#def fit(model, data_loader, device, scaler_target):
+#    all_outputs = []
+#    all_targets = []
+#
+#    model.eval()
+#    with torch.no_grad():
+#        for branch_batch, trunk_batch, target_batch in data_loader:
+#            branch_batch, trunk_batch, target_batch = (
+#                branch_batch.to(device),
+#                trunk_batch.to(device),
+#                target_batch.to(device),
+#            )
+#            output = model(branch_batch, trunk_batch)
+#            
+#            all_outputs.append(output.cpu())
+#            all_targets.append(target_batch.cpu())
+#
+#    # ...existing code...
+#    # After loop:
+#    outputs = torch.cat(all_outputs, dim=0)  # [N_test, ...]
+#    targets = torch.cat(all_targets, dim=0)  # [N_test, ...]
+#
+#    # move to numpy
+#    outputs = outputs.cpu().numpy()
+#    targets = targets.cpu().numpy()
+#
+#    # flatten to 2D (n_samples, n_features) for scaler
+#    out_shape = outputs.shape
+#    tgt_shape = targets.shape
+#    outputs_flat = outputs.reshape(outputs.shape[0], -1)
+#    targets_flat = targets.reshape(targets.shape[0], -1)
+#
+#    # inverse scale
+#    outputs_flat = scaler_target.inverse_transform(outputs_flat)
+#    targets_flat = scaler_target.inverse_transform(targets_flat)
+#
+#    # restore original shapes
+#    outputs = outputs_flat.reshape(out_shape)
+#    targets = targets_flat.reshape(tgt_shape)
+#
+#    
+#    return outputs, targets
+
+def fit(model, data_loader, device, scaler_target, mask_new=False):
+    """
+    Run inference on the data_loader, optionally masking the new station
+    (for catastrophic forgetting tests), and then inverse-transform outputs
+    using scaler_target.
+
+    Args:
+        model: TRON model (12 or 13 channel version)
+        data_loader: evaluation dataloader
+        device: "cuda" or "cpu"
+        scaler_target: fitted MinMaxScaler on y_train
+        mask_new: if True, zero out the last channel (new station)
+
+    Returns:
+        outputs: numpy array (inverse scaled)
+        targets: numpy array (inverse scaled)
+    """
+
+    model.eval()
+    model.to(device)
+
     all_outputs = []
     all_targets = []
 
-    model.eval()
     with torch.no_grad():
-        for branch_batch, trunk_batch, target_batch in data_loader:
-            branch_batch, trunk_batch, target_batch = (
-                branch_batch.to(device),
-                trunk_batch.to(device),
-                target_batch.to(device),
-            )
-            output = model(branch_batch, trunk_batch)
-            
-            all_outputs.append(output.cpu())
-            all_targets.append(target_batch.cpu())
+        for X_batch, trunk_batch, y_batch in data_loader:
 
-    # ...existing code...
-    # After loop:
-    outputs = torch.cat(all_outputs, dim=0)  # [N_test, ...]
-    targets = torch.cat(all_targets, dim=0)  # [N_test, ...]
+            X_batch = X_batch.to(device).float()       # [B, 30, C]
+            trunk_batch = trunk_batch.to(device).float()
+            y_batch = y_batch.to(device).float()
 
-    # move to numpy
-    outputs = outputs.cpu().numpy()
-    targets = targets.cpu().numpy()
+            # Optionally mask the new station (for Mode B)
+            if mask_new:
+                X_batch = X_batch.clone()
+                X_batch[:, :, -1] = 0.0               # Zero MXCO
 
-    # flatten to 2D (n_samples, n_features) for scaler
+            pred = model(X_batch, trunk_batch)
+
+            all_outputs.append(pred.cpu())
+            all_targets.append(y_batch.cpu())
+
+    # Concatenate all batches
+    outputs = torch.cat(all_outputs, dim=0)  # [N_eval, P, 1]
+    targets = torch.cat(all_targets, dim=0)  # [N_eval, P, 1]
+
+    # Flatten for inverse-scaling
     out_shape = outputs.shape
     tgt_shape = targets.shape
+
     outputs_flat = outputs.reshape(outputs.shape[0], -1)
     targets_flat = targets.reshape(targets.shape[0], -1)
 
-    # inverse scale
+    # Inverse transform using MinMaxScaler
     outputs_flat = scaler_target.inverse_transform(outputs_flat)
     targets_flat = scaler_target.inverse_transform(targets_flat)
 
-    # restore original shapes
+    # Restore original shapes
     outputs = outputs_flat.reshape(out_shape)
     targets = targets_flat.reshape(tgt_shape)
 
-    
     return outputs, targets
 
 
@@ -222,65 +313,6 @@ def compute_metrics_region(pred_img, targ_img, lon_grid, lat_grid, region_extent
     
     return rel_l2_pct, ssim_scores
 
-
-
-def extract_region_from_npy(
-    file_path: str,
-    lat_min: float,
-    lat_max: float,
-    lon_min: float,
-    lon_max: float,
-    grid_step: float = 0.25,
-):
-    """
-    Extract a latitude–longitude box from an EXPACS .npy dataset.
-
-    Parameters
-    ----------
-    file_path : str
-        Path to the .npy file (shape: [days, gridpoints]).
-    lat_min, lat_max : float
-        Latitude bounds in degrees.
-    lon_min, lon_max : float
-        Longitude bounds in degrees.
-    grid_step : float, optional
-        Grid resolution in degrees (default = 0.25).
-
-    Returns
-    -------
-    region_dose : np.ndarray
-        Dose array for the region, shape (days, n_lat, n_lon).
-    region_lats : np.ndarray
-        1D array of latitudes in the region.
-    region_lons : np.ndarray
-        1D array of longitudes in the region.
-    """
-
-    # Load full data
-    dose = np.load(file_path, mmap_mode="r")  # shape: (days, gridpoints)
-    print(f"Loaded {file_path}: {dose.shape[0]} days × {dose.shape[1]} gridpoints")
-
-    # Build coordinate grid (must match your input generation)
-    longitudes = np.arange(-180, 180 + grid_step, grid_step)
-    latitudes  = np.arange(-90,  90 + grid_step, grid_step)
-    n_lat, n_lon = len(latitudes), len(longitudes)
-
-    # Reshape to 3D (days, lat, lon)
-    dose_3d = dose.reshape(-1, n_lat, n_lon)
-
-    # Masks for region
-    lat_mask = (latitudes >= lat_min) & (latitudes <= lat_max)
-    lon_mask = (longitudes >= lon_min) & (longitudes <= lon_max)
-
-    # Extract region
-    region_dose = dose_3d[:, lat_mask][:, :, lon_mask]
-    region_lats = latitudes[lat_mask]
-    region_lons = longitudes[lon_mask]
-
-    print(f"Extracted region: {lat_min}–{lat_max}°N, {lon_min}–{lon_max}°E "
-          f"→ shape {region_dose.shape}")
-
-    return region_dose, region_lats, region_lons
 
 def convert2dim(dose_array, grid_path='data/grid_points.npy'):
     """
@@ -511,6 +543,165 @@ def plot_field_region(
     cb = fig.colorbar(im, cax=cax, orientation='horizontal')
     cb.set_label(units_label, fontsize=10)
     cb.ax.tick_params(labelsize=8)
+
+    if savepath:
+        plt.savefig(savepath, dpi=dpi, bbox_inches="tight")
+    else:
+        plt.show()
+    if close:
+        plt.close(fig)
+
+import datetime  # <--- NEW import
+
+def plot_three_samples_pred_err(
+    lon_grid, lat_grid,
+    pred, target, idx_list,
+    *,
+    region_extent=None,              
+    units_pred="Effective Dose Rate (µSv/h)",
+    units_err="Error (µSv/h)",
+    cmap_pred="viridis",
+    cmap_err="coolwarm",
+    tick_step=(30, 15),
+    show_coast=True,
+    show_borders=True,
+    mark_equator_meridian=True,
+    error_mode="diff",               
+    err_symmetry_pad=0.02,           
+    vmin_pred=None, vmax_pred=None,
+    vlim_err=None,                   
+    add_contour=False,
+    contour_levels=8,
+    contour_color="k",
+    contour_alpha=0.8,
+    start_date="2023-01-01",  # <--- NEW: base date for index conversion
+    dpi=300, savepath=None, close=True
+):
+    """
+    2x3 figure: columns = indices in idx_list.
+    Top row: predictions (with contour + labels).
+    Bottom row: error maps (with contour, no labels).
+    Titles show calendar day based on start_date and index.
+    """
+    assert pred.ndim == 3 and target.ndim == 3
+    assert len(idx_list) == 3
+    assert region_extent is not None
+
+    lon_min, lon_max, lat_min, lat_max = region_extent
+
+    # --- Prepare date converter ---
+    base_date = datetime.datetime.strptime(start_date, "%Y-%m-%d")
+
+    # --- Subset region ---
+    mask_lat = (lat_grid[:, 0] >= lat_min) & (lat_grid[:, 0] <= lat_max)
+    mask_lon = (lon_grid[0, :] >= lon_min) & (lon_grid[0, :] <= lon_max)
+    sub_lon = lon_grid[np.ix_(mask_lat, mask_lon)]
+    sub_lat = lat_grid[np.ix_(mask_lat, mask_lon)]
+
+    # --- Extract and compute errors ---
+    P = [pred[i][np.ix_(mask_lat, mask_lon)] for i in idx_list]
+    T = [target[i][np.ix_(mask_lat, mask_lon)] for i in idx_list]
+    E = [p - t if error_mode == "diff" else np.abs(p - t) for p, t in zip(P, T)]
+
+    # --- Color limits ---
+    if vmin_pred is None or vmax_pred is None:
+        allP = np.stack(P)
+        vmin_pred = np.nanmin(allP) * 0.9 if vmin_pred is None else vmin_pred
+        vmax_pred = np.nanmax(allP) * 1.1 if vmax_pred is None else vmax_pred
+
+    if error_mode == "diff":
+        if vlim_err is None:
+            allE = np.stack(E)
+            amax = np.nanmax(np.abs(allE)) * (1.0 + err_symmetry_pad)
+        else:
+            amax = vlim_err
+        vmin_err, vmax_err = -amax, +amax
+    else:
+        allE = np.stack(E)
+        vmin_err, vmax_err = 0.0, np.nanmax(allE)
+
+    # --- Figure setup ---
+    proj = ccrs.PlateCarree()
+    fig, axs = plt.subplots(2, 3, figsize=(12, 6), dpi=dpi,
+                            subplot_kw={'projection': proj}, constrained_layout=False)
+
+    def add_basemap(ax):
+        if show_coast:
+            ax.add_feature(cfeature.LAND, facecolor="lightgray", zorder=0)
+            ax.add_feature(cfeature.OCEAN, facecolor="white", zorder=0)
+            ax.coastlines(resolution="50m", lw=0.6)
+        if show_borders:
+            ax.add_feature(cfeature.BORDERS, lw=0.4)
+        ax.set_extent([lon_min, lon_max, lat_min, lat_max], crs=proj)
+        lon_step, lat_step = tick_step
+        xticks = np.arange(lon_min, lon_max + 1e-9, lon_step)
+        yticks = np.arange(lat_min, lat_max + 1e-9, lat_step)
+        ax.set_xticks(xticks, crs=proj)
+        ax.set_yticks(yticks, crs=proj)
+        def fmt_lon(x): return f"{abs(int(x))}°{'W' if x < 0 else 'E' if x > 0 else ''}"
+        def fmt_lat(y): return f"{abs(int(y))}°{'S' if y < 0 else 'N' if y > 0 else ''}"
+        ax.set_xticklabels([fmt_lon(x) for x in xticks], fontsize=9)
+        ax.set_yticklabels([fmt_lat(y) for y in yticks], fontsize=9)
+        ax.tick_params(length=3, direction="out")
+        if mark_equator_meridian:
+            ax.plot([lon_min, lon_max], [0, 0], transform=proj, color="gray", lw=0.5, ls="--")
+            if lon_min < 0 < lon_max:
+                ax.plot([0, 0], [lat_min, lat_max], transform=proj, color="gray", lw=0.5, ls="--")
+
+    # --- Draw panels ---
+    ims_pred, ims_err = [], []
+    for col, idx in enumerate(idx_list):
+        # Compute calendar date
+        current_date = base_date + datetime.timedelta(days=int(idx))
+        date_label = current_date.strftime("2023-%m-%d")
+
+        # Optional percentile annotation
+        percentile_labels = ["5th-percentile", "50th-percentile", "95th-percentile"]
+        percentile_text = percentile_labels[col] if col < len(percentile_labels) else ""
+
+        # --- Top: Prediction ---
+        axP = axs[0, col]
+        add_basemap(axP)
+        imP = axP.pcolormesh(sub_lon, sub_lat, P[col], transform=proj,
+                             cmap=cmap_pred, vmin=vmin_pred, vmax=vmax_pred, shading="auto")
+        if add_contour:
+            cs = axP.contour(sub_lon, sub_lat, P[col], levels=contour_levels,
+                             colors=contour_color, linewidths=0.4, alpha=contour_alpha, transform=proj)
+            axP.clabel(cs, fmt="%.3f", fontsize=6, inline=True, inline_spacing=2)
+
+        # UPDATED TITLE LINE
+        #axP.set_title(f"Prediction ({date_label}, {percentile_text})", fontsize=11, pad=6)
+        axP.set_title(f"Prediction ({percentile_text}, {date_label})", fontsize=11, pad=6)
+        ims_pred.append(imP)
+
+        # --- Bottom: Error ---
+        axE = axs[1, col]
+        add_basemap(axE)
+        imE = axE.pcolormesh(sub_lon, sub_lat, E[col], transform=proj,
+                             cmap=cmap_err, vmin=vmin_err, vmax=vmax_err, shading="auto")
+        if add_contour:
+            axE.contour(sub_lon, sub_lat, E[col], levels=contour_levels,
+                        colors=contour_color, linewidths=0.4, alpha=contour_alpha, transform=proj)
+        #axE.set_title("Error Map", fontsize=11, pad=6)
+        ims_err.append(imE)
+
+
+    # --- Shared colorbars ---
+    plt.tight_layout()
+    fig.canvas.draw()
+
+    def add_row_cbar(row_axes, im, label, y_gap=0.06, height=0.03):
+        left = min(ax.get_position().x0 for ax in row_axes)
+        right = max(ax.get_position().x1 for ax in row_axes)
+        bottom = min(ax.get_position().y0 for ax in row_axes)
+        cax = fig.add_axes([left, bottom - y_gap, right - left, height])
+        cb = fig.colorbar(im, cax=cax, orientation="horizontal")
+        cb.set_label(label, fontsize=14)
+        cb.ax.tick_params(labelsize=8)
+        return cb
+
+    add_row_cbar(axs[0, :], ims_pred[0], units_pred, y_gap=0.070, height=0.028)
+    add_row_cbar(axs[1, :], ims_err[0], units_err, y_gap=0.070, height=0.028)
 
     if savepath:
         plt.savefig(savepath, dpi=dpi, bbox_inches="tight")

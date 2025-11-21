@@ -73,7 +73,6 @@ def train_model(
     train_loader,
     val_loader,
     device,
-    scaler_target,
     num_epochs=100,
     lr=1e-3,
     weight_decay=0.0,
@@ -186,3 +185,6 @@ def train_model(
     model.load_state_dict(torch.load(save_path))
 
     return history
+
+
+
