@@ -169,47 +169,109 @@ def load_model_experiment_deeponet(model_path):
     return model
 
 
-def fit(model, data_loader, device, scaler_target):
+#def fit(model, data_loader, device, scaler_target):
+#    all_outputs = []
+#    all_targets = []
+#
+#    model.eval()
+#    with torch.no_grad():
+#        for branch_batch, trunk_batch, target_batch in data_loader:
+#            branch_batch, trunk_batch, target_batch = (
+#                branch_batch.to(device),
+#                trunk_batch.to(device),
+#                target_batch.to(device),
+#            )
+#            output = model(branch_batch, trunk_batch)
+#            
+#            all_outputs.append(output.cpu())
+#            all_targets.append(target_batch.cpu())
+#
+#    # ...existing code...
+#    # After loop:
+#    outputs = torch.cat(all_outputs, dim=0)  # [N_test, ...]
+#    targets = torch.cat(all_targets, dim=0)  # [N_test, ...]
+#
+#    # move to numpy
+#    outputs = outputs.cpu().numpy()
+#    targets = targets.cpu().numpy()
+#
+#    # flatten to 2D (n_samples, n_features) for scaler
+#    out_shape = outputs.shape
+#    tgt_shape = targets.shape
+#    outputs_flat = outputs.reshape(outputs.shape[0], -1)
+#    targets_flat = targets.reshape(targets.shape[0], -1)
+#
+#    # inverse scale
+#    outputs_flat = scaler_target.inverse_transform(outputs_flat)
+#    targets_flat = scaler_target.inverse_transform(targets_flat)
+#
+#    # restore original shapes
+#    outputs = outputs_flat.reshape(out_shape)
+#    targets = targets_flat.reshape(tgt_shape)
+#
+#    
+#    return outputs, targets
+
+def fit(model, data_loader, device, scaler_target, mask_new=False):
+    """
+    Run inference on the data_loader, optionally masking the new station
+    (for catastrophic forgetting tests), and then inverse-transform outputs
+    using scaler_target.
+
+    Args:
+        model: TRON model (12 or 13 channel version)
+        data_loader: evaluation dataloader
+        device: "cuda" or "cpu"
+        scaler_target: fitted MinMaxScaler on y_train
+        mask_new: if True, zero out the last channel (new station)
+
+    Returns:
+        outputs: numpy array (inverse scaled)
+        targets: numpy array (inverse scaled)
+    """
+
+    model.eval()
+    model.to(device)
+
     all_outputs = []
     all_targets = []
 
-    model.eval()
     with torch.no_grad():
-        for branch_batch, trunk_batch, target_batch in data_loader:
-            branch_batch, trunk_batch, target_batch = (
-                branch_batch.to(device),
-                trunk_batch.to(device),
-                target_batch.to(device),
-            )
-            output = model(branch_batch, trunk_batch)
-            
-            all_outputs.append(output.cpu())
-            all_targets.append(target_batch.cpu())
+        for X_batch, trunk_batch, y_batch in data_loader:
 
-    # ...existing code...
-    # After loop:
-    outputs = torch.cat(all_outputs, dim=0)  # [N_test, ...]
-    targets = torch.cat(all_targets, dim=0)  # [N_test, ...]
+            X_batch = X_batch.to(device).float()       # [B, 30, C]
+            trunk_batch = trunk_batch.to(device).float()
+            y_batch = y_batch.to(device).float()
 
-    # move to numpy
-    outputs = outputs.cpu().numpy()
-    targets = targets.cpu().numpy()
+            # Optionally mask the new station (for Mode B)
+            if mask_new:
+                X_batch = X_batch.clone()
+                X_batch[:, :, -1] = 0.0               # Zero MXCO
 
-    # flatten to 2D (n_samples, n_features) for scaler
+            pred = model(X_batch, trunk_batch)
+
+            all_outputs.append(pred.cpu())
+            all_targets.append(y_batch.cpu())
+
+    # Concatenate all batches
+    outputs = torch.cat(all_outputs, dim=0)  # [N_eval, P, 1]
+    targets = torch.cat(all_targets, dim=0)  # [N_eval, P, 1]
+
+    # Flatten for inverse-scaling
     out_shape = outputs.shape
     tgt_shape = targets.shape
+
     outputs_flat = outputs.reshape(outputs.shape[0], -1)
     targets_flat = targets.reshape(targets.shape[0], -1)
 
-    # inverse scale
+    # Inverse transform using MinMaxScaler
     outputs_flat = scaler_target.inverse_transform(outputs_flat)
     targets_flat = scaler_target.inverse_transform(targets_flat)
 
-    # restore original shapes
+    # Restore original shapes
     outputs = outputs_flat.reshape(out_shape)
     targets = targets_flat.reshape(tgt_shape)
 
-    
     return outputs, targets
 
 

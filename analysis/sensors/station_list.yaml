@@ -46,3 +46,7 @@ stations:
   - name: TERA
     lat: -66.65
     lon: 140.0
+
+  - name: MXCO # for added sensor in Mexico City
+    lat: 19.8
+    lon: -99.1781
