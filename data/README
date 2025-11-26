@@ -1,0 +1,17 @@
+# This directory (data) is a location which contains all datasets used in this research.
+
+## neutron_data_22_yrs.npy
+- The neutron sensor data (2001-2023). The dataset contains the daily neutron counts (count/s) over 23 years between 2001-01-01 and 2023-12-31.
+- The tag '22' in the filename is a typo, so please ignore.
+
+## dose_array.npy
+- The solution data corresponding to the neutron sensor data. 
+- It was prepared with EXPACS (developed by Japan Atomic Energy Agency) and the spatial resolution was set to 1 deg in lat and lon. 
+
+## DoseNumpy025
+- High spatial resolution solution datasets prepared with 0.25 spatial resolutions in lat and lon.
+- This dataset was used for the study of zero-shot capability.
+
+## add_sensor
+- The additional neutron sensor data for the robustness check for adding new sensor.
+- The duration is the same as the neutron_data_22_yrs.npy, but new sensor location (MXCO).
