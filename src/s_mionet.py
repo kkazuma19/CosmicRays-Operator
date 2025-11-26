@@ -1,8 +1,8 @@
 import torch
 import torch.nn as nn
 from fcn import FCN
-from lstm import LSTM, AttentionLSTM
-from gru import GRU, AttentionGRU
+from lstm import LSTM
+from gru import GRU
 from rnn import RNN
 
 class SequentialMIONet(nn.Module):
@@ -29,10 +29,6 @@ class SequentialMIONet(nn.Module):
                 self.branches[branch_name] = LSTM(input_size, hidden_size, num_layers, output_size)
             elif branch_type == 'gru':
                 self.branches[branch_name] = GRU(input_size, hidden_size, num_layers, output_size)
-            elif branch_type == 'attention_lstm':
-                self.branches[branch_name] = AttentionLSTM(input_size, hidden_size, num_layers, output_size, num_heads=num_heads)
-            elif branch_type == 'attention_gru':
-                self.branches[branch_name] = AttentionGRU(input_size, hidden_size, num_layers, output_size, num_heads=num_heads)
             else:
                 raise ValueError(f"Unsupported branch type: {branch_type}")
 
