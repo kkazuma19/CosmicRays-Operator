@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --cpus-per-task=16
-#SBATCH --gpus-per-node=4
+#SBATCH --gpus-per-node=1
 #SBATCH --account=begc-dtai-gh
 #SBATCH -t 12:00:00
 #SBATCH --output=multi_debug.out
@@ -29,28 +29,31 @@ print("CUDA:", torch.cuda.is_available())
 print("Device:", torch.cuda.get_device_name(0) if torch.cuda.is_available() else None)
 EOF
 
-WINDOW_SIZES=(7 30 60 90)
+WINDOW_SIZES=(7)
 
-echo "===== Starting GRU sweep ====="
-for i in {0..3}; do
-    GPU_ID=$i
-    WINDOW_SIZE=${WINDOW_SIZES[$i]}
-    echo "[GRU] window=$WINDOW_SIZE → GPU $GPU_ID"
-    CUDA_VISIBLE_DEVICES=$GPU_ID python -u multi_gru_train.py \
-        --window_size $WINDOW_SIZE &> multi_branch/logs/gru_w${WINDOW_SIZE}.log &
-done
-wait
-echo "===== GRU sweep finished ====="
+# echo "===== Starting GRU sweep ====="
+# for i in {0..3}; do
+#     GPU_ID=$i
+#     WINDOW_SIZE=${WINDOW_SIZES[$i]}
+#     echo "[GRU] window=$WINDOW_SIZE → GPU $GPU_ID"
+#     CUDA_VISIBLE_DEVICES=$GPU_ID python -u multi_gru_train.py \
+#         --window_size $WINDOW_SIZE &> multi_branch/logs/gru_w${WINDOW_SIZE}.log &
+# done
+# wait
+# echo "===== GRU sweep finished ====="
 
 
-echo "===== Starting LSTM sweep ====="
-for i in {0..3}; do
-    GPU_ID=$i
-    WINDOW_SIZE=${WINDOW_SIZES[$i]}
-    echo "[LSTM] window=$WINDOW_SIZE → GPU $GPU_ID"
-    CUDA_VISIBLE_DEVICES=$GPU_ID python -u multi_lstm_train.py \
-        --window_size $WINDOW_SIZE &> multi_branch/logs/lstm_w${WINDOW_SIZE}.log &
-done
+# echo "===== Starting LSTM sweep ====="
+# for i in {0..3}; do
+#     GPU_ID=$i
+#     WINDOW_SIZE=${WINDOW_SIZES[$i]}
+#     echo "[LSTM] window=$WINDOW_SIZE → GPU $GPU_ID"
+#     CUDA_VISIBLE_DEVICES=$GPU_ID python -u multi_lstm_train.py \
+#         --window_size $WINDOW_SIZE &> multi_branch/logs/lstm_w${WINDOW_SIZE}.log &
+# done
+
+python -u multi_lstm_train.py --window_size $WINDOW_SIZE 
+
 wait
 echo "===== LSTM sweep finished ====="
 
