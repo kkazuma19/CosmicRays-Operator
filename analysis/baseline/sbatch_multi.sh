@@ -52,7 +52,7 @@ WINDOW_SIZES=(7)
 #         --window_size $WINDOW_SIZE &> multi_branch/logs/lstm_w${WINDOW_SIZE}.log &
 # done
 
-python -u multi_lstm_train.py --window_size $WINDOW_SIZE 
+python -u multi_lstm_train.py --window_size 7 &> lstm_w7.log & 
 
 wait
 echo "===== LSTM sweep finished ====="

@@ -28,12 +28,12 @@ case $CLUSTER_CHOICE in
   2)
     echo "Launching on Delta cluster..."
     srun --account=bcnx-delta-gpu \
-         --partition=gpuA100x4,gpuA40x4 \
+         --partition=gpuA100x4 \
          --nodes=1 \
          --ntasks-per-node=1 \
          --gpus=1 \
-         --time=08:00:00 \
-         --mem=128g \
+         --time=02:00:00 \
+         --mem=64g \
          jupyter-notebook --no-browser --port=$MYPORT --ip=0.0.0.0
     ;;
   *)
